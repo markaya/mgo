@@ -1,0 +1,44 @@
+<div class="transfer-modal">
+    <div class="transfer-modal-content">
+        <h2>Confirm Transaction</h2>
+        <p>You are about to:</p>
+        <p> - Deduct {{.Form.AmountFrom}} from {{.Form.AccountFrom}}</p>
+        <p> - Add {{.Form.AmountTo}} to {{.Form.AccountTo}}</p>
+        <div class="actions">
+            <button class="btn cancel" hx-post="/transfer/create/cancel/{{.Form.CacheId}}" hx-swap="none">Cancel</button>
+            <button class="btn confirm" hx-post="/transfer/create/confirm/{{.Form.CacheId}}" hx-swap="none">Confirm</button>
+        </div>
+    </div>
+</div>
+<form hx-post="/transfer/create/" hx-swap="innerHTML" hx-target="#transfer-content">
+    <h2>
+        Confirm Transfer Transaction
+    </h2>
+    <div>
+        <p> You are about to transfer {{.Form.FromAmount}} {{.Form.FromCurrency}} From: </p>
+        <input type='text' value='{{.Form.FromAccount}}' disabled> 
+    </div>
+    <div>
+        <p> You are about to transfer {{.Form.ToAmount}} {{.Form.ToCurrency}} From: </p>
+        <input type='text' value='{{.Form.ToAccount}}' disabled> 
+    </div>
+    <div>
+        <label>Date:</label>
+        {{with .Form.FieldErrors.date}}
+            <label class='error'> {{.}}</label>
+        {{end}}
+        <input type= 'date' name= 'date' value='{{if .Form.Date}}{{.Form.Date}}{{ else }}{{.DateString}}{{end}}'>
+    </div>
+    <div>
+        <label>Amount:</label>
+        {{with .Form.FieldErrors.amount}}
+            <label class='error'> {{.}}</label>
+        {{end}}
+        <input id='amount' type='number' value='1000' name= 'amount' value='{{.Form.Amount}}'>
+    </div>
+    <div>
+        <input type='hidden' id='confirm' name='confirm' value='true'>
+        <input type= 'submit' value= 'Confirm Transfer'>
+    </div>
+</form>
+

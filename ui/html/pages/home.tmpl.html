@@ -1,0 +1,53 @@
+<!doctype html>
+{{define "title"}}Home{{end}}
+
+{{define "main"}}
+    {{if or .IsAuthenticated}}
+        {{if .ExpenseTransactions}} 
+            <div class="home-page-transactions">
+                <h2>Expense Transactions</h2>
+                <a href='/transaction/create/expense' class="new-transaction-button">New Expense</a>
+                <table>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                    </tr>
+                    {{range .ExpenseTransactions}}
+                    <tr>
+                        <td>{{.DisplayDate}}</td>
+                        <td>{{.DisplayAmount}}</td>
+                        <td>{{.Category}}</td>
+                        <td>{{.Description}}</td>
+                    </tr>
+                    {{end}}
+                </table>
+            </div>
+        {{end}}
+        {{if .IncomeTransactions}} 
+            <div class="home-page-transactions">
+                <h2> Income Transactions </h2>
+                <a href='/transaction/create/income' class="new-transaction-button">New Income</a>
+                <table>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                    </tr>
+                    {{range .IncomeTransactions}}
+                    <tr>
+                        <td>{{.DisplayDate}}</td>
+                        <td>{{.DisplayAmount}}</td>
+                        <td>{{.Category}}</td>
+                        <td>{{.Description}}</td>
+                    </tr>
+                    {{end}}
+                </table>
+            </div>
+        {{end}}
+    {{else}}
+        <p> Regular HP </p>
+    {{end}}
+{{end}}

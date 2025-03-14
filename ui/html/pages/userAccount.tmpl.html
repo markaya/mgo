@@ -1,0 +1,43 @@
+{{define "title"}}User Profile{{end}}
+
+{{define "main"}}
+    
+    {{if .Accounts}}
+        <div class="accounts">
+        <h2>Your Accounts</h2>
+        {{range .Accounts}}
+            <div class="account-card" 
+                hx-get="/account/details" 
+                hx-trigger="click" hx-target="#account-details" hx-swap="innerHTML" >
+                <div class="account-info">
+                    <div class="account-name">{{.AccountName}}</div>
+                    <div class="account-balance">{{.DisplayBalance}}</div>
+                </div>
+            </div>
+        {{end}}
+        </div>
+    {{end}}
+
+    <h2>Your Profile</h2>
+    {{with .User}}
+        <table>
+            <tr>
+                <th>Name</th>
+                <td>{{.Name}}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{.Email}}</td>
+            </tr>
+            <tr>
+                <th>Joined</th>
+                <td>{{humanDate .Created}}</td>
+            </tr>
+            <tr>
+                <!-- Add a link to the change password form -->
+                <th>Password</th>
+                <td><a href= "/user/password/update">Change password</a></td>
+            </tr>
+        </table>
+    {{end}}
+{{end}}

@@ -1,0 +1,24 @@
+{{define "title"}}New Account{{end}}
+
+{{define "main"}}
+<form action= '/account/create' method= 'POST'>
+    <div>
+        <label>Account name:</label>
+        {{with .Form.FieldErrors.name}}
+            <label class='error'> {{.}}</label>
+        {{end}}
+        <input type= 'text' name= 'name' value='{{.Form.AccountName}}'>
+    </div>
+    <div>
+        <label>Currency:</label>
+        {{with .Form.FieldErrors.currency}}
+            <label class='error'> {{.}}</label>
+        {{end}}
+        <input type= 'radio' name= 'currency' value='0' {{if (eq .Form.Currency 0)}}checked{{end}}> RSD
+        <input type= 'radio' name= 'currency' value='1'{{if (eq .Form.Currency 1)}}checked{{end}}> EUR
+    </div>
+    <div>
+        <input type= 'submit' value= 'Create Account'>
+    </div>
+</form>
+{{end}}
