@@ -1,12 +1,42 @@
-<!doctype html>
 {{define "title"}}Home{{end}}
 
 {{define "main"}}
     {{if or .IsAuthenticated}}
+        {{with .UserTotalReport}}
+            <div class="centered-div"> 
+                <h3> Balance for current month </h3>
+            </div>
+            <div class="balance-container">
+                <div class="balance-card">
+                    <h3>EUR Balance</h3>
+                    <div class="values">
+                        <span>Income: {{.IncomeEur}}€</span>
+                        <span>Expense: {{.ExpenseEur}}€</span>
+                    </div>
+                    <progress id="progress-eur" value="{{.ProgressEur}}" max="100"> </progress>
+                    <div>
+                    <span>{{.ProgressEur}}% Spent </span>
+                    </div>
+                </div>
+
+                <div class="balance-card">
+                    <h3>RSD Balance</h3>
+                    <div class="values">
+                        <span>Income: {{.IncomeRsd}} RSD</span>
+                        <span>Expense: {{.ExpenseRsd}} RSD</span>
+                    </div>
+                    <progress id="progress-rsd" value="{{.ProgressRsd}}" max="100"> </progress>
+                    <div>
+                    <span>{{.ProgressRsd}}% Spent </span>
+                    </div>
+                </div>
+            </div>
+        {{end}}
         {{if .ExpenseTransactions}} 
             <div class="home-page-transactions">
                 <h2>Expense Transactions</h2>
                 <a href='/transaction/create/expense' class="new-transaction-button">New Expense</a>
+                <a href='/transactions' class="new-transaction-button">Show All</a>
                 <table>
                     <tr>
                         <th>Date</th>
@@ -23,6 +53,10 @@
                     </tr>
                     {{end}}
                 </table>
+            </div>
+        {{else}}
+            <div class="home-page-transactions">
+                <a href='/transaction/create/expense' class="new-transaction-button">New Expense</a>
             </div>
         {{end}}
         {{if .IncomeTransactions}} 
@@ -46,8 +80,12 @@
                     {{end}}
                 </table>
             </div>
+        {{else}}
+            <div class="home-page-transactions">
+                <a href='/transaction/create/income' class="new-transaction-button">New Income</a>
+            </div>
         {{end}}
     {{else}}
-        <p> Regular HP </p>
+        <p> Welcome to MyApp. Create an account to get started. </p>
     {{end}}
 {{end}}

@@ -1,0 +1,32 @@
+{{define "title"}}Money Account{{end}}
+
+{{define "main"}}
+    <h2>Account</h2>
+    {{if .Account}}
+        {{with .Account}}
+        <table>
+            <tr>
+                <th>Name</th>
+                <td>{{.AccountName}}</td>
+            </tr>
+            <tr>
+                <th>Balance</th>
+                <td>{{.DisplayBalance}}</td>
+            </tr>
+        </table>
+        {{end}}
+        <form action= '/account/rebalance/' method= 'POST'>
+            <div>
+                <label>New Balance:</label>
+                {{with .Form.FieldErrors.balance}}
+                    <label class='error'> {{.}}</label>
+                {{end}}
+                <input type= 'number' name='new-balance' value='0'>
+            </div>
+            <div>
+                <input type='hidden' name='id' value='{{.Account.ID}}'>
+                <input type= 'submit' value= 'Rebalance'>
+            </div>
+        </form>
+    {{end}}
+{{end}}

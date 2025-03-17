@@ -13,3 +13,12 @@ type TransactionCreateForm struct {
 	TransactionType int
 	validator.Validator
 }
+
+type TransferCreateForm struct {
+	FromAcc    Account
+	FromAmount float64
+	ToAcc      Account
+	ToAmount   float64
+	Date       string
+	validator.Validator
+}

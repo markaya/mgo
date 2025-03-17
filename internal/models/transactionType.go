@@ -9,13 +9,17 @@ const (
 	Expense
 	TransferIn
 	TransferOut
+	RebalanceIn
+	RebalanceOut
 )
 
 var transactionTypeName = map[TransactionType]string{
-	Income:      "IN",
-	Expense:     "EX",
-	TransferIn:  "TIN",
-	TransferOut: "TOUT",
+	Income:       "IN",
+	Expense:      "EX",
+	TransferIn:   "TIN",
+	TransferOut:  "TOUT",
+	RebalanceIn:  "RIN",
+	RebalanceOut: "ROUT",
 }
 
 var stringToTransactionType = map[string]TransactionType{
@@ -23,6 +27,8 @@ var stringToTransactionType = map[string]TransactionType{
 	"EX":   Expense,
 	"TIN":  TransferIn,
 	"TOUT": TransferOut,
+	"RIN":  RebalanceIn,
+	"ROUT": RebalanceOut,
 }
 
 func GetTransactionTypeFromString(s string) (TransactionType, bool) {

@@ -1,7 +1,7 @@
 {{define "title"}}New Transaction{{end}}
 
 {{define "main"}}
-<form action= '/transaction/create' method= 'POST'>
+<form action= '/transaction/create/' method= 'POST'>
     <h2>
         {{if (eq .Form.TransactionType 0)}}New Income Transaction{{end}}
         {{if (eq .Form.TransactionType 1)}}New Expense Transaction{{end}}

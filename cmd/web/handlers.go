@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/markaya/meinappf/internal/models"
+	"github.com/markaya/meinappf/internal/services"
 	"github.com/markaya/meinappf/internal/validator"
 	"github.com/markaya/meinappf/ui"
 	"golang.org/x/crypto/bcrypt"
@@ -40,12 +41,9 @@ type changePasswordForm struct {
 	validator.Validator
 }
 
-type transferCreateForm struct {
-	FromAcc    models.Account
-	FromAmount float64
-	ToAcc      models.Account
-	ToAmount   float64
-	Date       string
+type rebalanceAccountForm struct {
+	accountId  int
+	newBalance float64
 	validator.Validator
 }
 
@@ -74,7 +72,7 @@ func (app *application) transferCreate(w http.ResponseWriter, r *http.Request) {
 
 	data.Accounts = accounts
 	data.DateString = time.Now().Format("2006-01-02")
-	data.Form = transferCreateForm{}
+	data.Form = models.TransferCreateForm{}
 	app.render(w, http.StatusOK, "transfer_create.tmpl.html", data)
 }
 
@@ -88,40 +86,48 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 
 	err := r.ParseForm()
 	if err != nil {
+		app.errorLog.Printf("Error parsing form")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	fromAccId, err := strconv.Atoi(r.PostForm.Get("from"))
 	if err != nil {
+		app.errorLog.Printf("Error parsing from acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	toAccId, err := strconv.Atoi(r.PostForm.Get("to"))
 	if err != nil {
+		app.errorLog.Printf("Error parsing to acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	fromAmount, err := strconv.ParseFloat(r.PostForm.Get("amount"), 64)
 	if err != nil {
+		app.errorLog.Printf("Error parsing from amount acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	_, err = time.Parse("2006-01-02", r.PostForm.Get("date"))
 	if err != nil {
+		app.errorLog.Printf("Error parsing date acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+
 	fromAcc, err := app.accounts.Get(userId, fromAccId)
 	if err != nil {
+		app.errorLog.Printf("Error parsing from  acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	toAcc, err := app.accounts.Get(userId, toAccId)
 	if err != nil {
+		app.errorLog.Printf("Error parsing to  acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -137,7 +143,7 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	form := transferCreateForm{
+	form := models.TransferCreateForm{
 		FromAcc:    *fromAcc,
 		FromAmount: fromAmount,
 		ToAcc:      *toAcc,
@@ -146,33 +152,70 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 	}
 
 	data := app.newTemplateData(r)
-	data.Form = form
 	form.CheckField(validator.GreaterThanZero(form.FromAmount), "amount", "This field must be greater than zero.")
 
 	if fromAcc.Balance < fromAmount {
 		form.AddFieldError("amount", "Account does not have suficient funds.")
 	}
 
+	if fromAccId == toAccId {
+		form.AddFieldError("from", "Trying to transfer funds from one account to itself.")
+		form.AddFieldError("to", "Trying to transfer funds from one account to itself.")
+	}
+
+	data.Form = form
 	if !form.Valid() {
-		data := app.newTemplateData(r)
-		app.render(w, http.StatusUnprocessableEntity, "transfer_create.tmpl.html", data)
+		accounts, err := app.accounts.GetAll(userId)
+		if err != nil {
+			app.errorLog.Println("error while getting all accounts for user")
+			app.serverError(w, err)
+			return
+		}
+
+		data.Accounts = accounts
+		ts, err := template.ParseFS(ui.Files, "html/pages/transfer_create_form.tmpl.html")
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+		err = ts.Execute(w, data)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
 		return
 	}
 
 	confirmed, err := strconv.ParseBool(r.PostForm.Get("confirm"))
 	if err != nil {
+		app.errorLog.Printf("Error parsing to  acc")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+
 	if confirmed {
 		// TODO: save transfer
+		//app.transactions.InsertTransfer()
+		err = app.transactions.InsertTransfer(form)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+
+		w.Header().Set("HX-Redirect", "/")
+		w.WriteHeader(http.StatusOK)
+
 	} else {
 		ts, err := template.ParseFS(ui.Files, "html/pages/transfer_confirm.tmpl.html")
 		if err != nil {
 			app.serverError(w, err)
 			return
 		}
-		ts.Execute(w, data)
+		err = ts.Execute(w, data)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
 	}
 }
 
@@ -227,18 +270,21 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 	// FIXME: Fix these client errors to more user friendly error handling.
 	// Use only for those who should not be altered with
 	if err != nil {
+		app.infoLog.Println("Error while parsing form!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	accId, err := strconv.Atoi(r.PostForm.Get("account"))
 	if err != nil {
+		app.infoLog.Println("Error while parsing account id!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	account, err := app.accounts.Get(userId, accId)
 	if err != nil {
+		app.infoLog.Println("Error while getting account from database!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -247,18 +293,21 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 
 	txType, err := strconv.Atoi(r.PostForm.Get("txtype"))
 	if err != nil {
+		app.infoLog.Println("Error while parsing transaction type!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	amount, err := strconv.ParseFloat(r.PostForm.Get("amount"), 64)
 	if err != nil {
+		app.infoLog.Println("Error while parsing amount type!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	_, err = time.Parse("2006-01-02", r.PostForm.Get("date"))
 	if err != nil {
+		app.infoLog.Println("Error while parsing date!")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -283,23 +332,39 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 	form.CheckField(validator.PermittedInt(form.TransactionType, 0, 1), "txtype", "This field must equal 0(INCOME) or 1(EXPENSE)")
 	form.CheckField(validator.GreaterThanZero(form.Amount), "amount", "This field must be greater than zero.")
 
-	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "transactionCreate.tmpl.html", data)
-		return
-	}
-
 	txAmountSigned := amount
 	var transactionType = models.TransactionType(txType)
 
 	if transactionType == models.Expense {
-		txAmountSigned = -formAmount
+		txAmountSigned = -amount
 	}
 
 	newBalance := account.Balance + txAmountSigned
 	if newBalance < 0 {
 		form.AddFieldError("amount", "Account does not have suficient funds.")
+	}
+
+	if !form.Valid() {
+		accounts, err := app.accounts.GetAll(userId)
+		if err != nil {
+			app.errorLog.Println("error while getting all accounts for user")
+			app.serverError(w, err)
+			return
+		}
+		data := app.newTemplateData(r)
+
+		if transactionType == models.Expense {
+			data.DefaultExpenseCategories()
+		} else if transactionType == models.Income {
+			data.DefaultIncomeCategories()
+		} else {
+			panic("unsupported tx type")
+		}
+
+		data.Accounts = accounts
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "transactionCreate.tmpl.html", data)
+		return
 	}
 
 	// FIXME: sending account like this is prime call for race conditions.
@@ -312,21 +377,171 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 			data.Form = form
 			app.render(w, http.StatusUnprocessableEntity, "accountCreate.tmpl.html", data)
 		} else {
+			app.infoLog.Println("Server error when inserting!")
 			app.serverError(w, err)
 			return
 		}
 	}
 
-	app.sessionManager.Put(r.Context(), "flash", "Account successfully created!")
-	http.Redirect(w, r, "/transaction/create", http.StatusSeeOther)
+	var redirectUrl string
+	if transactionType == models.Expense {
+		redirectUrl = "/transaction/create/expense"
+	} else if transactionType == models.Income {
+		redirectUrl = "/transaction/create/income"
+	} else {
+		redirectUrl = "/"
+	}
+	app.sessionManager.Put(r.Context(), "flash", "Transaction successfully created!")
+	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
 
 func (app *application) transactionsView(w http.ResponseWriter, r *http.Request) {
-	app.notFound(w)
+	data := app.newTemplateData(r)
+	data.WithDefaultDateFilter()
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println("err while parsing form")
+		app.serverError(w, err)
+		return
+	}
+
+	startDateString := r.Form.Get("start-date")
+	endDateString := r.Form.Get("end-date")
+
+	if startDateString != "" {
+		startDate, err := time.Parse("2006-01-02", startDateString)
+		if err == nil {
+			data.DateFilter["startDate"] = startDate
+		}
+	}
+	if endDateString != "" {
+		endDate, err := time.Parse("2006-01-02", endDateString)
+		if err == nil {
+			data.DateFilter["endDate"] = endDate
+		}
+	}
+
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+	if userId == 0 {
+		// TODO: serve unauthenticated home page
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	incomeTransactions, err := app.transactions.GetByDateAndType(
+		userId,
+		models.Income,
+		// FIXME: Shoudl you gamble with this? I mean I know that there is default filter,
+		// but there is maybe future issue?
+		data.DateFilter["startDate"],
+		data.DateFilter["endDate"],
+	)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	expenseTransactions, err := app.transactions.GetByDateAndType(
+		userId,
+		models.Expense,
+		data.DateFilter["startDate"],
+		data.DateFilter["endDate"],
+	)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	data.IncomeTransactions = incomeTransactions
+	data.ExpenseTransactions = expenseTransactions
+
+	app.render(w, http.StatusOK, "transactions.tmpl.html", data)
 }
 
 func (app *application) transactionView(w http.ResponseWriter, r *http.Request) {
 	app.notFound(w)
+}
+
+func (app *application) accountRebalanceView(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	accIdRaw := r.PathValue("id")
+	accountId, err := strconv.Atoi(accIdRaw)
+	if err != nil {
+		app.errorLog.Printf("error parsing id %s into Integer type.", accIdRaw)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+
+	account, err := app.accounts.Get(userId, accountId)
+	data.Account = account
+	form := rebalanceAccountForm{}
+	data.Form = form
+
+	app.render(w, http.StatusOK, "rebalance.tmpl.html", data)
+}
+func (app *application) accountRebalancePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Printf("Error parsing form")
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+
+	accId, err := strconv.Atoi(r.PostForm.Get("id"))
+	if err != nil {
+		app.errorLog.Printf("error parsing acc id %s", r.PostForm.Get("id"))
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	newBalance, err := strconv.ParseFloat(r.PostForm.Get("new-balance"), 64)
+	if err != nil {
+		app.errorLog.Printf("error parsing new-balance %s", r.PostForm.Get("new-balance"))
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	acc, err := app.accounts.Get(userId, accId)
+	if err != nil {
+		app.errorLog.Printf("could not find account with id %d, for user %d", accId, userId)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	data := app.newTemplateData(r)
+	form := rebalanceAccountForm{
+		accountId:  accId,
+		newBalance: newBalance,
+	}
+
+	form.CheckField(validator.GreaterThanZero(form.newBalance), "balance", "This field must be greater than zero.")
+
+	balanceDiff := acc.Balance - newBalance
+	if balanceDiff == 0 {
+		form.AddFieldError("balance", "New balance can not be same as current balance")
+	}
+
+	data.Form = form
+	if !form.Valid() {
+		app.render(w, http.StatusUnprocessableEntity, "rebalance.tmpl.html", data)
+		return
+	}
+
+	transactionCreateForm := models.NewRebalance(*acc, balanceDiff)
+	_, err = app.transactions.Insert(transactionCreateForm, newBalance)
+	if err != nil {
+		app.errorLog.Printf("could not insert transaction create form %v", transactionCreateForm)
+		app.serverError(w, err)
+		return
+	}
+
+	// NOTE: Success path
+	acc.Balance = newBalance
+	data.Account = acc
+	app.sessionManager.Put(r.Context(), "flash", "Account successfully rebalanced!")
+	http.Redirect(w, r, fmt.Sprintf("/account/view/%d", acc.ID), http.StatusSeeOther)
 }
 
 func (app *application) accountCreate(w http.ResponseWriter, r *http.Request) {
@@ -346,11 +561,13 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 
 	err := r.ParseForm()
 	if err != nil {
+		app.errorLog.Printf("could not parse form")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 	currency, err := strconv.Atoi(r.PostForm.Get("currency"))
 	if err != nil {
+		app.errorLog.Printf("could not parse form currency")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -452,20 +669,32 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		// TODO: serve unauthenticated home page
 		app.render(w, http.StatusOK, "home.tmpl.html", data)
 	}
+	data.WithDefaultDateFilter()
 
-	incomeTransactions, err := app.transactions.GetLatest(userId, 10, models.Income)
+	allTransactions, err := app.transactions.GetByDate(userId, data.DateFilter["startDate"], data.DateFilter["endDate"])
 	if err != nil {
+		app.errorLog.Println("error while getting transactions")
 		app.serverError(w, err)
 		return
 	}
-	expenseTransactions, err := app.transactions.GetLatest(userId, 10, models.Expense)
+	report := services.GetTotalReport(allTransactions)
+
+	incomeTransactions, err := app.transactions.GetLatest(userId, 5, models.Income)
 	if err != nil {
+		app.errorLog.Println("error while getting income transactions")
+		app.serverError(w, err)
+		return
+	}
+	expenseTransactions, err := app.transactions.GetLatest(userId, 5, models.Expense)
+	if err != nil {
+		app.errorLog.Println("error while getting expense transactions")
 		app.serverError(w, err)
 		return
 	}
 
 	data.IncomeTransactions = incomeTransactions
 	data.ExpenseTransactions = expenseTransactions
+	data.UserTotalReport = report
 
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }

@@ -16,7 +16,7 @@ type AccountModelInterface interface {
 
 type Account struct {
 	ID          int
-	userID      int
+	UserId      int
 	AccountName string
 	Balance     float64
 	Currency    Currency
@@ -67,7 +67,7 @@ func (m *AccountModel) Get(userId, id int) (*Account, error) {
 	s := &Account{}
 
 	row := m.DB.QueryRow(stmt, userId, id)
-	err := row.Scan(&s.ID, &s.userID, &s.AccountName, &s.Balance, &s.Currency)
+	err := row.Scan(&s.ID, &s.UserId, &s.AccountName, &s.Balance, &s.Currency)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -91,7 +91,7 @@ func (m *AccountModel) GetAll(userId int) ([]*Account, error) {
 
 	for rows.Next() {
 		a := &Account{}
-		err := rows.Scan(&a.ID, &a.userID, &a.AccountName, &a.Balance, &a.Currency)
+		err := rows.Scan(&a.ID, &a.UserId, &a.AccountName, &a.Balance, &a.Currency)
 		if err != nil {
 			return nil, err
 		}

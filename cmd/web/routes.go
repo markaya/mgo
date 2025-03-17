@@ -56,12 +56,14 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /account/view/{id}", protected(dynamic(http.HandlerFunc(app.accountView))))
 	mux.Handle("GET /account/create", protected(dynamic(http.HandlerFunc(app.accountCreate))))
 	mux.Handle("POST /account/create", protected(dynamic(http.HandlerFunc(app.accountCreatePost))))
+	mux.Handle("GET /account/rebalance/{id}", protected(dynamic(http.HandlerFunc(app.accountRebalanceView))))
+	mux.Handle("POST /account/rebalance/", protected(dynamic(http.HandlerFunc(app.accountRebalancePost))))
 
 	// NOTE: Transactions
 	mux.Handle("GET /transactions/", protected(dynamic(http.HandlerFunc(app.transactionsView))))
 	mux.Handle("GET /transaction/view/{id}", protected(dynamic(http.HandlerFunc(app.transactionView))))
 	mux.Handle("GET /transaction/create/{ttype}", protected(dynamic(http.HandlerFunc(app.transactionCreate))))
-	mux.Handle("POST /transaction/create", protected(dynamic(http.HandlerFunc(app.transactionCreatePost))))
+	mux.Handle("POST /transaction/create/{$}", protected(dynamic(http.HandlerFunc(app.transactionCreatePost))))
 
 	// NOTE: Transfers
 	mux.Handle("GET /transfers/", protected(dynamic(http.HandlerFunc(app.transfersView))))

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/markaya/meinappf/internal/models"
+	"github.com/markaya/meinappf/internal/services"
 	"github.com/markaya/meinappf/ui"
 )
 
@@ -21,13 +22,26 @@ type templateData struct {
 	Account             *models.Account
 	Accounts            []*models.Account
 	Categories          []string
+	UserTotalReport     services.TotalReport
+	DateFilter          map[string]time.Time
 	IncomeTransactions  []*models.Transaction
 	ExpenseTransactions []*models.Transaction
 }
 
+func (t *templateData) WithDefaultDateFilter() {
+	filterMap := make(map[string]time.Time)
+	now := time.Now()
+	// Default to the first and last day of the current month if dates are not provided
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(now.Year(), now.Month()+1, 0, 23, 59, 59, 0, time.UTC)
+	filterMap["startDate"] = startDate
+	filterMap["endDate"] = endDate
+	t.DateFilter = filterMap
+}
+
 func (t *templateData) DefaultIncomeCategories() {
 	t.Categories = []string{
-		"publicis paycheck",
+		"publicis",
 		"rent",
 		"parents",
 		"other",
@@ -43,6 +57,7 @@ func (t *templateData) DefaultExpenseCategories() {
 		"gym",
 		"daki",
 		"clothes",
+		"commute",
 		"health",
 		"luxury",
 		"other",
@@ -56,8 +71,16 @@ func humanDate(t time.Time) string {
 	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
+func htmlDate(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format("2006-01-02")
+}
+
 var functions = template.FuncMap{
 	"humanDate": humanDate,
+	"htmlDate":  htmlDate,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
