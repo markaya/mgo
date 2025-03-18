@@ -1,11 +1,15 @@
 package models
 
-import "github.com/markaya/meinappf/internal/validator"
+import (
+	"time"
+
+	"github.com/markaya/meinappf/internal/validator"
+)
 
 type TransactionCreateForm struct {
 	UserId          int
 	AccountId       int
-	Date            string
+	Date            time.Time
 	Amount          float64
 	Category        string
 	Description     string
@@ -19,6 +23,6 @@ type TransferCreateForm struct {
 	FromAmount float64
 	ToAcc      Account
 	ToAmount   float64
-	Date       string
+	Date       time.Time
 	validator.Validator
 }

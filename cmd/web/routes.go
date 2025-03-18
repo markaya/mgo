@@ -61,7 +61,6 @@ func (app *application) routes() http.Handler {
 
 	// NOTE: Transactions
 	mux.Handle("GET /transactions/", protected(dynamic(http.HandlerFunc(app.transactionsView))))
-	mux.Handle("GET /transaction/view/{id}", protected(dynamic(http.HandlerFunc(app.transactionView))))
 	mux.Handle("GET /transaction/create/{ttype}", protected(dynamic(http.HandlerFunc(app.transactionCreate))))
 	mux.Handle("POST /transaction/create/{$}", protected(dynamic(http.HandlerFunc(app.transactionCreatePost))))
 

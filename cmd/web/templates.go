@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"io/fs"
 	"path/filepath"
@@ -14,7 +15,7 @@ import (
 // TODO: Add success and fail flash.
 type templateData struct {
 	CurrentYear         int
-	DateString          string
+	DateStringNow       string
 	Form                any
 	Flash               string
 	IsAuthenticated     bool
@@ -33,7 +34,7 @@ func (t *templateData) WithDefaultDateFilter() {
 	now := time.Now()
 	// Default to the first and last day of the current month if dates are not provided
 	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(now.Year(), now.Month()+1, 0, 23, 59, 59, 0, time.UTC)
+	endDate := time.Date(now.Year(), now.Month()+1, 0, 23, 59, 59, 999999999, time.UTC)
 	filterMap["startDate"] = startDate
 	filterMap["endDate"] = endDate
 	t.DateFilter = filterMap
@@ -64,6 +65,10 @@ func (t *templateData) DefaultExpenseCategories() {
 	}
 }
 
+func formatFloat(f float64) string {
+	return fmt.Sprintf("%.2f", f)
+}
+
 func humanDate(t time.Time) string {
 	if t.IsZero() {
 		return ""
@@ -79,8 +84,9 @@ func htmlDate(t time.Time) string {
 }
 
 var functions = template.FuncMap{
-	"humanDate": humanDate,
-	"htmlDate":  htmlDate,
+	"humanDate":   humanDate,
+	"htmlDate":    htmlDate,
+	"formatFloat": formatFloat,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

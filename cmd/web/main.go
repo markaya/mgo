@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,10 +21,11 @@ import (
 // NOTE: You can parse flag into pre existing var in memory
 
 type config struct {
-	addr      string
-	staticDir string
+	addr string
+	//staticDir string
 	debugMode bool
 	dsn       string
+	tlsPath   string
 }
 
 type application struct {
@@ -38,6 +40,15 @@ type application struct {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
+	filePath := extractFilePath(dsn)
+	if filePath == "" {
+		return nil, fmt.Errorf("invalid DSN: file path not found")
+	}
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("database file does not exist: %s", filePath)
+	}
+
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, err
@@ -52,17 +63,25 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func main() {
 
-	var cfg config
+	cfg := config{}
 	flag.StringVar(&cfg.addr, "address", ":4000", "HTTP network addr")
-	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
+	// NOTE: Not needed because I use FS embed
+	//flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.BoolVar(&cfg.debugMode, "debug", false, "Turn debug mode on.")
-	flag.StringVar(&cfg.dsn, "dsn", "./meinappf.db?_busy_timeout=5000&_journal_mode=WAL", "Sqlite db string")
+	flag.StringVar(&cfg.dsn, "dsn", "", "Sqlite db string")
+	flag.StringVar(&cfg.tlsPath, "tls", "./tls", "Tls folder")
+	//meinappf.db?_busy_timeout=5000&_journal_mode=WAL
+
+	flag.Parse()
+	flag.Usage()
+
+	if cfg.dsn == "" {
+		cfg.dsn = os.Getenv("MGO_DATABASE_URL")
+	}
 
 	// parse values into new variable
 	// addr := flag.String("addr", ":4000", "Http network addr")
 	// dsn := flag.String("dsn", "./snippetbox.db?_busy_timeout=5000&_journal_mode=WAL", "Sqlite db string")
-
-	flag.Parse()
 
 	// NOTE: Loggers
 	infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
@@ -71,6 +90,7 @@ func main() {
 	// NOTE: Database
 	db, err := openDB(cfg.dsn)
 	if err != nil {
+		errorLog.Printf("there was an error trying to open db with dsn:\"%s\", please prived dsn flag or $MGO_DATABASE_URL env variable", cfg.dsn)
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
@@ -126,6 +146,20 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s\n", cfg.addr)
-	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	cert := fmt.Sprintf("%s/cert.pem", cfg.tlsPath)
+	key := fmt.Sprintf("%s/key.pem", cfg.tlsPath)
+	err = srv.ListenAndServeTLS(cert, key)
 	errorLog.Fatal(err)
+}
+
+func extractFilePath(dsn string) string {
+	if len(dsn) >= 5 && dsn[:5] == "file:" {
+		dsn = dsn[5:]
+	}
+	for i, char := range dsn {
+		if char == '?' {
+			return dsn[:i]
+		}
+	}
+	return dsn
 }

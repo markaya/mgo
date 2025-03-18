@@ -10,8 +10,8 @@
                 <div class="balance-card">
                     <h3>EUR Balance</h3>
                     <div class="values">
-                        <span>Income: {{.IncomeEur}}€</span>
-                        <span>Expense: {{.ExpenseEur}}€</span>
+                        <span>Income: {{formatFloat .IncomeEur}}€</span>
+                        <span>Expense: {{formatFloat .ExpenseEur}}€</span>
                     </div>
                     <progress id="progress-eur" value="{{.ProgressEur}}" max="100"> </progress>
                     <div>
@@ -22,8 +22,8 @@
                 <div class="balance-card">
                     <h3>RSD Balance</h3>
                     <div class="values">
-                        <span>Income: {{.IncomeRsd}} RSD</span>
-                        <span>Expense: {{.ExpenseRsd}} RSD</span>
+                        <span>Income: {{formatFloat .IncomeRsd}} RSD</span>
+                        <span>Expense: {{formatFloat .ExpenseRsd}} RSD</span>
                     </div>
                     <progress id="progress-rsd" value="{{.ProgressRsd}}" max="100"> </progress>
                     <div>

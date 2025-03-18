@@ -43,7 +43,7 @@ func NewRebalance(account Account, balanceDiff float64) TransactionCreateForm {
 	return TransactionCreateForm{
 		UserId:          account.UserId,
 		AccountId:       account.ID,
-		Date:            time.Now().Format("2006-01-02"),
+		Date:            time.Now().UTC(),
 		Amount:          math.Abs(balanceDiff),
 		Currency:        int(account.Currency),
 		Category:        "rebalance",
@@ -268,7 +268,7 @@ func (m *TransactionModel) GetByDate(userId int, startDate, endDate time.Time) (
 	AND date between ? and ?
 	ORDER BY date DESC, id DESC;`
 
-	rows, err := m.DB.Query(stmt, userId, startDate, endDate)
+	rows, err := m.DB.Query(stmt, userId, startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
 	if err != nil {
 		return nil, err
 	}
@@ -331,7 +331,6 @@ func (m *TransactionModel) GetLatest(userId, limit int, tt TransactionType) ([]*
 	AND transaction_type = ?
 	ORDER BY date DESC, id DESC
 	LIMIT ?;`
-	//  AND date between ? and ?
 
 	rows, err := m.DB.Query(stmt, userId, tt, limit)
 	if err != nil {

@@ -69,6 +69,7 @@ func GetTotalReport(transactions []*models.Transaction) TotalReport {
 	}
 
 	return TotalReport{
+		// TODO: fix time frame
 		StartDate:           time.Now(),
 		EndDate:             time.Now(),
 		IncomeEur:           incomeEur,

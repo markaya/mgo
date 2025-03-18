@@ -33,7 +33,7 @@
             {{with .Form.FieldErrors.date}}
                 <label class='error'> {{.}}</label>
             {{end}}
-            <input type= 'date' name= 'date' value='{{if .Form.Date}}{{.Form.Date}}{{ else }}{{.DateString}}{{end}}'>
+            <input type= 'date' name= 'date' value='{{if .Form.Date.IsZero}}{{.DateStringNow}}{{ else }}{{htmlDate .Form.Date}}{{end}}'>
         </div>
         <div>
             <label>Amount:</label>
