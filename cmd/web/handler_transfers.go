@@ -161,8 +161,6 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 	}
 
 	if confirmed {
-		// TODO: save transfer
-		//app.transactions.InsertTransfer()
 		err = app.transactions.InsertTransfer(form)
 		if err != nil {
 			app.serverError(w, err)

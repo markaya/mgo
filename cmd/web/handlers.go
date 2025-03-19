@@ -19,7 +19,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		// TODO: serve unauthenticated home page
 		app.render(w, http.StatusOK, "home.tmpl.html", data)
 	}
 	data.WithDefaultDateFilter()
@@ -30,7 +29,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	report := services.GetTotalReport(allTransactions)
+	report := services.GetTotalReport(allTransactions, data.DateFilter["startDate"], data.DateFilter["endDate"])
 
 	incomeTransactions, err := app.transactions.GetLatest(userId, 5, models.Income)
 	if err != nil {

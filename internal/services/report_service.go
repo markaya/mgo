@@ -20,13 +20,7 @@ type TotalReport struct {
 	ExpenseTransactions []models.Transaction
 }
 
-func GetTotalReport(transactions []*models.Transaction) TotalReport {
-	/*TODO:
-	  1. Separate income and expenes, avoid transfers?? Leave transfers for transfers
-	  2. Sum Income
-	  3. Sum Expense
-	  4. Calculte net Profit/Loss
-	*/
+func GetTotalReport(transactions []*models.Transaction, startDate, endDate time.Time) TotalReport {
 	incomeTransactions := make([]models.Transaction, 100)
 	expenseTransactions := make([]models.Transaction, 100)
 	incomeEur := 0.0
@@ -69,9 +63,8 @@ func GetTotalReport(transactions []*models.Transaction) TotalReport {
 	}
 
 	return TotalReport{
-		// TODO: fix time frame
-		StartDate:           time.Now(),
-		EndDate:             time.Now(),
+		StartDate:           startDate,
+		EndDate:             endDate,
 		IncomeEur:           incomeEur,
 		ExpenseEur:          expenseEur,
 		ProgressEur:         progressEur,

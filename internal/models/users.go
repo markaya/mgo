@@ -47,8 +47,9 @@ func (m *UserModel) Get(id int) (*User, error) {
 }
 
 func HashPassword(password string) ([]byte, error) {
-	// TODO: Add secret string to password before hashing (Password + secret)
+	// NOTE: Add secret string to password before hashing (Password + secret)
 	// Keep secret as env variable
+	// No need as bcrypt does salting itself
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 13)
 	if err != nil {
 		return nil, err
@@ -90,7 +91,6 @@ func (m *UserModel) UpdatePassword(id int, password string) error {
 	_, err = m.DB.Exec(stmt, string(hashedPassword), id)
 	if err != nil {
 		sqliteErr, b := err.(sqlite3.Error)
-		//TODO: Update with Erro does not exist1
 		if b {
 			if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
 				return ErrDuplicateEmail

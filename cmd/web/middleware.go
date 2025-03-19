@@ -61,7 +61,7 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 	})
 }
 
-// FIXME: Proper recovery from CSRF attacks has not been implemented because of
+// NOTE: Proper recovery from CSRF attacks has not been implemented because of
 // an issue with justinas/nosurf library. But if you use TLS 1.3 you can avoid
 // additional CSRF security becaues TLS 1.3 enforces usage of `SameSite` cookies
 // Read more in chapter 11 of Let's Go book.

@@ -18,11 +18,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// NOTE: You can parse flag into pre existing var in memory
+/* TODO:
+0. HTML/CSS - responsive reboot.
+1. Fix race conditions
+2. Add Apartments/Bills
+3. Add Books
+	a. MD Viewer
+*/
 
 type config struct {
-	addr string
-	//staticDir string
+	addr      string
 	debugMode bool
 	dsn       string
 	tlsPath   string
@@ -39,38 +44,14 @@ type application struct {
 	debugMode      bool
 }
 
-func openDB(dsn string) (*sql.DB, error) {
-	filePath := extractFilePath(dsn)
-	if filePath == "" {
-		return nil, fmt.Errorf("invalid DSN: file path not found")
-	}
-
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("database file does not exist: %s", filePath)
-	}
-
-	db, err := sql.Open("sqlite3", dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-
-	return db, err
-}
-
 func main() {
-
 	cfg := config{}
 	flag.StringVar(&cfg.addr, "address", ":4000", "HTTP network addr")
 	// NOTE: Not needed because I use FS embed
-	//flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
+	// flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.BoolVar(&cfg.debugMode, "debug", false, "Turn debug mode on.")
 	flag.StringVar(&cfg.dsn, "dsn", "", "Sqlite db string")
 	flag.StringVar(&cfg.tlsPath, "tls", "./tls", "Tls folder")
-	//meinappf.db?_busy_timeout=5000&_journal_mode=WAL
 
 	flag.Parse()
 	flag.Usage()
@@ -78,10 +59,6 @@ func main() {
 	if cfg.dsn == "" {
 		cfg.dsn = os.Getenv("MGO_DATABASE_URL")
 	}
-
-	// parse values into new variable
-	// addr := flag.String("addr", ":4000", "Http network addr")
-	// dsn := flag.String("dsn", "./snippetbox.db?_busy_timeout=5000&_journal_mode=WAL", "Sqlite db string")
 
 	// NOTE: Loggers
 	infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
@@ -150,6 +127,28 @@ func main() {
 	key := fmt.Sprintf("%s/key.pem", cfg.tlsPath)
 	err = srv.ListenAndServeTLS(cert, key)
 	errorLog.Fatal(err)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	filePath := extractFilePath(dsn)
+	if filePath == "" {
+		return nil, fmt.Errorf("invalid DSN: file path not found")
+	}
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("database file does not exist: %s", filePath)
+	}
+
+	db, err := sql.Open("sqlite3", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, err
 }
 
 func extractFilePath(dsn string) string {

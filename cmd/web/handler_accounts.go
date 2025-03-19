@@ -211,7 +211,6 @@ func (app *application) accountRebalancePost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// NOTE: Success path
 	acc.Balance = newBalance
 	data.Account = acc
 	app.sessionManager.Put(r.Context(), "flash", "Account successfully rebalanced!")

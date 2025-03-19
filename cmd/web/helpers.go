@@ -46,7 +46,6 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 
 	w.WriteHeader(status)
 	_, err = buf.WriteTo(w)
-	// TODO: Is this okay?
 	if err != nil {
 		app.serverError(w, err)
 	}

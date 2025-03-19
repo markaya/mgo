@@ -60,8 +60,6 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 	}
 
 	err := r.ParseForm()
-	// FIXME: Fix these client errors to more user friendly error handling.
-	// Use only for those who should not be altered with
 	if err != nil {
 		app.infoLog.Println("error while parsing form!")
 		app.clientError(w, http.StatusBadRequest)
@@ -116,7 +114,6 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 		TransactionType: txType,
 	}
 
-	// TODO: Check if more is needed.
 	form.CheckField(validator.NotBlank(form.Category), "category", "This field cannot be blank")
 	form.CheckField(validator.MaxChars(form.Category, 25), "category", "This field cannto be more than 25 chars long.")
 	form.CheckField(validator.MaxChars(form.Description, 100), "descritpion", "This field cannto be more than 100 chars long.")
@@ -216,7 +213,6 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		// TODO: serve unauthenticated home page
 		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 		return
 	}
@@ -224,8 +220,6 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 	incomeTransactions, err := app.transactions.GetByDateAndType(
 		userId,
 		models.Income,
-		// FIXME: Should you gamble with this? I mean I know that there is default filter,
-		// but there is maybe future issue?
 		data.DateFilter["startDate"],
 		data.DateFilter["endDate"],
 	)
@@ -241,7 +235,11 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 		data.DateFilter["endDate"],
 	)
 
-	report := services.GetTotalReport(append(incomeTransactions, expenseTransactions...))
+	report := services.GetTotalReport(
+		append(incomeTransactions, expenseTransactions...),
+		data.DateFilter["startDate"],
+		data.DateFilter["endDate"],
+	)
 
 	if err != nil {
 		app.serverError(w, err)

@@ -242,8 +242,6 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 		return
 	}
 
-	// FIXME: When inverted id and password werte sent to db stmt then no error
-	// occured and i had no idea where bug was
 	err = app.users.UpdatePassword(id, form.NewPassword)
 	if err != nil {
 		app.serverError(w, err)

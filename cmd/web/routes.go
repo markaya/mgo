@@ -10,7 +10,6 @@ func (app *application) routes() http.Handler {
 
 	mux := http.NewServeMux()
 
-	// TODO: Find a way to use it only on handfull of requests, not all of them
 	dynamic := func(handler http.Handler) http.Handler {
 		return app.sessionManager.LoadAndSave(app.authenticate(handler))
 	}

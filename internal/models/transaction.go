@@ -82,7 +82,6 @@ func (m *TransactionModel) InsertTransfer(tf TransferCreateForm) error {
 	}()
 
 	desc := fmt.Sprintf("[T] from %s to %s", tf.FromAcc.AccountName, tf.ToAcc.AccountName)
-	// FIXME: make date from DATE string
 	_, err = tx.Exec(stmt1, tf.FromAcc.ID, tf.FromAcc.UserId, tf.Date, tf.FromAmount, tf.FromAcc.Currency, "transfer", desc, TransferIn)
 
 	if err != nil {

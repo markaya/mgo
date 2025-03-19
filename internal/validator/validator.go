@@ -12,7 +12,6 @@ type Validator struct {
 	FieldErrors    map[string]string
 }
 
-// TODO: This needs improvements
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // NOTE: Parse email per RFC which can parse some adresses you might want to avoid
