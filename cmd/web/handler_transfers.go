@@ -2,14 +2,12 @@ package main
 
 import (
 	"errors"
-	"html/template"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/markaya/meinappf/internal/models"
 	"github.com/markaya/meinappf/internal/validator"
-	"github.com/markaya/meinappf/ui"
 )
 
 // TODO: Maybe later to show all transfers as they are not shown with others
@@ -140,16 +138,7 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		}
 
 		data.Accounts = accounts
-		ts, err := template.ParseFS(ui.Files, "html/pages/transfer_create_form.tmpl.html")
-		if err != nil {
-			app.serverError(w, err)
-			return
-		}
-		err = ts.Execute(w, data)
-		if err != nil {
-			app.serverError(w, err)
-			return
-		}
+		app.renderForm(w, http.StatusOK, "transfer_create_form.tmpl.html", "transfer-create-form", data)
 		return
 	}
 
@@ -171,15 +160,6 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusOK)
 
 	} else {
-		ts, err := template.ParseFS(ui.Files, "html/pages/transfer_confirm.tmpl.html")
-		if err != nil {
-			app.serverError(w, err)
-			return
-		}
-		err = ts.Execute(w, data)
-		if err != nil {
-			app.serverError(w, err)
-			return
-		}
+		app.renderForm(w, http.StatusOK, "transfer_confirm.tmpl.html", "transfer-confirm", data)
 	}
 }

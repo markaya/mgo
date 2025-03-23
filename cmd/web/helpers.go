@@ -28,6 +28,32 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// page is the name it is written in cahce
+// form is the name of a form in template unde {{define "..."}} {{end}}
+// TODO: Think of a better way of unifying file path/name with {{define <name>}}
+func (app *application) renderForm(w http.ResponseWriter, status int, page, form string, data *templateData) {
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := fmt.Errorf("the template %s does not exist", page)
+		app.serverError(w, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+
+	err := ts.ExecuteTemplate(buf, form, data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.WriteHeader(status)
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}
+
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
 	ts, ok := app.templateCache[page]
 	if !ok {

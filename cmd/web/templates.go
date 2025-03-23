@@ -98,6 +98,20 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		return nil, err
 	}
 
+	forms, err := fs.Glob(ui.Files, "html/forms/*tmpl.html")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, form := range forms {
+		name := filepath.Base(form)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, form)
+		if err != nil {
+			return nil, err
+		}
+		cache[name] = ts
+	}
+
 	for _, page := range pages {
 		name := filepath.Base(page)
 
@@ -120,6 +134,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		patterns := []string{
 			"html/base.tmpl.html",
 			"html/partials/*.tmpl.html",
+			"html/forms/*.tmpl.html",
 			page,
 		}
 
@@ -127,6 +142,8 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Add to cache models that are not
 
 		cache[name] = ts
 	}

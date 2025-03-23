@@ -1,15 +1,37 @@
 package main
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/markaya/meinappf/internal/models"
 	"github.com/markaya/meinappf/internal/services"
+	"github.com/markaya/meinappf/ui"
 )
 
 func (app *application) ping(w http.ResponseWriter, r *http.Request) {
 	_, err := w.Write([]byte("OK"))
 	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+}
+
+func (app *application) test(w http.ResponseWriter, r *http.Request) {
+
+	ts, err := template.New("biz").Funcs(functions).ParseFS(ui.Files, "html/pages/biz.tmpl.html")
+	if err != nil {
+		app.errorLog.Print("ERROR ERROR\n")
+		return
+	}
+	data := app.newTemplateData(r)
+
+	app.infoLog.Println("execute header")
+	w.WriteHeader(200)
+	app.infoLog.Println("execute template")
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.errorLog.Printf("there was an error executing template")
 		app.serverError(w, err)
 		return
 	}

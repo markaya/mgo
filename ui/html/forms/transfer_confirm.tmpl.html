@@ -1,3 +1,4 @@
+{{define "transfer-confirm"}}
 <form hx-post="/transfer/create/" hx-swap="none">
     <h2>
         Confirm Transfer Transaction
@@ -15,11 +16,11 @@
     </div>
     <div>
         <label>On Date:</label>
-        <input type='date' name='date' value='{{.Form.Date}}' readonly>
+        <input type='date' name='date' value='{{htmlDate .Form.Date}}' readonly>
     </div>
     <div>
         <input type='hidden' id='confirm' name='confirm' value='true'>
         <input type= 'submit' value= 'Confirm Transfer'>
     </div>
 </form>
-
+{{end}}
