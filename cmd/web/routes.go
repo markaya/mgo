@@ -34,6 +34,7 @@ func (app *application) routes() http.Handler {
 	// NOTE: For test purpose
 	mux.HandleFunc("GET /ping", app.ping)
 
+	mux.Handle("GET /test", dynamic(http.HandlerFunc(app.test)))
 	// NOTE: Regular Session
 	mux.Handle("GET /{$}", dynamic(http.HandlerFunc(app.home)))
 	mux.Handle("GET /about", dynamic(http.HandlerFunc(app.aboutView)))
