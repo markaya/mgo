@@ -53,7 +53,6 @@ func (app *application) routes() http.Handler {
 	// NOTE: Accounts
 	mux.Handle("GET /accounts/", protected(dynamic(http.HandlerFunc(app.accountsView))))
 	mux.Handle("GET /account/view/{id}", protected(dynamic(http.HandlerFunc(app.accountView))))
-	// TODO: Create Account and rebalance
 	mux.Handle("GET /account/create", protected(dynamic(http.HandlerFunc(app.accountCreate))))
 	mux.Handle("POST /account/create", protected(dynamic(http.HandlerFunc(app.accountCreatePost))))
 	mux.Handle("GET /account/rebalance/{id}", protected(dynamic(http.HandlerFunc(app.accountRebalanceView))))

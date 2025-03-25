@@ -19,7 +19,6 @@ import (
 )
 
 /* TODO:
-0. HTML/CSS - responsive reboot.
 1. Fix race conditions
 2. Add Apartments/Bills
 3. Add Books
