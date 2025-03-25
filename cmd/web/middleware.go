@@ -25,14 +25,20 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		exists, err := app.users.Exist(id)
+		user, err := app.users.Get(id)
 		if err != nil {
 			app.serverError(w, err)
 			return
 		}
 
-		if exists {
+		// FIXME: Multiple additions to context, to be checked. Uncomment and watch logs
+		//app.infoLog.Println(user)
+		if user != nil {
+			// app.infoLog.Println(r.Context())
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			// app.infoLog.Println(ctx)
+			ctx = context.WithValue(ctx, authenticatedUser, user)
+			// app.infoLog.Println()
 			r = r.WithContext(ctx)
 		}
 

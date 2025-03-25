@@ -33,7 +33,7 @@ type changePasswordForm struct {
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userSignupForm{}
-	app.render(w, http.StatusOK, "signup.tmpl.html", data)
+	app.render(w, http.StatusOK, "signup.html", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +83,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
-	app.render(w, http.StatusOK, "login.tmpl.html", data)
+	app.render(w, http.StatusOK, "login.html", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -177,7 +177,8 @@ func (app *application) userView(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.User = user
 	data.Accounts = accounts
-	app.render(w, http.StatusOK, "userAccount.tmpl.html", data)
+	data.Form = changePasswordForm{}
+	app.render(w, http.StatusOK, "profile.html", data)
 
 }
 
@@ -249,5 +250,5 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 	}
 
 	app.sessionManager.Put(r.Context(), "flash", "Successfully changed password!")
-	http.Redirect(w, r, "/user/view/", http.StatusSeeOther)
+	http.Redirect(w, r, "/user/profile/", http.StatusSeeOther)
 }

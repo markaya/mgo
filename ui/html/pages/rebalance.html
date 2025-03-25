@@ -1,0 +1,40 @@
+{{define "title"}}Rebalance{{end}}
+
+{{define "main"}}
+<div class="row my-4">
+    {{if .Account}}
+    <div class="col-lg-4 offset-lg-3 col-12">
+        <div class="custom-block mt-4 pt-4 bg-white">
+            <div class="card mb-5">
+                <div class="card-body">
+                    <h5 class="card-title">Account Details</h5>
+                    <p class="card-text"><strong>Account:</strong> {{.Account.AccountName}}</p>
+                    <p class="card-text"><strong>Current Balance:</strong> {{.Account.DisplayBalance}}</p>
+                </div>
+            </div>
+            <form class="custom-form" action= '/account/rebalance/' method= 'POST'>
+                <div>
+                    <label class="form-label">New Balance:</label>
+                    {{with .Form.FieldErrors.balance}}
+                        <label class='error form-label'> {{.}}</label>
+                    {{end}}
+                    <input class="form-control" type= 'number' name='new-balance' value='0'>
+                </div>
+                <div>
+                    <input class="form-control" type='hidden' name='id' value='{{.Account.ID}}'>
+                </div>
+                <button class="form-control ms-2" type='submit'> Rebalance </button>
+            </form>
+        </div>
+    </div>
+    {{end}}
+</div>
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}

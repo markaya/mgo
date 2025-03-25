@@ -48,7 +48,7 @@ func (app *application) transactionCreate(w http.ResponseWriter, r *http.Request
 	data.Form = models.TransactionCreateForm{Currency: 0, TransactionType: int(transactionType)}
 	data.DateStringNow = time.Now().Format("2006-01-02")
 
-	app.render(w, http.StatusOK, "transactionCreate.tmpl.html", data)
+	app.render(w, http.StatusOK, "transaction_create.html", data)
 }
 
 func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +188,22 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 	data := app.newTemplateData(r)
 	data.WithDefaultDateFilter()
 
-	err := r.ParseForm()
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+	if userId == 0 {
+		app.infoLog.Printf("could not find user with id %d", userId)
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	user, err := app.users.Get(userId)
+	if err != nil {
+		app.errorLog.Printf("could not find user with id %d", userId)
+		app.serverError(w, err)
+		return
+	}
+	data.User = user
+
+	err = r.ParseForm()
 	if err != nil {
 		app.errorLog.Println("err while parsing form")
 		app.serverError(w, err)
@@ -209,12 +224,6 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 		if err == nil {
 			data.DateFilter["endDate"] = endDate
 		}
-	}
-
-	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
-	if userId == 0 {
-		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
-		return
 	}
 
 	incomeTransactions, err := app.transactions.GetByDateAndType(
@@ -250,5 +259,5 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 	data.IncomeTransactions = incomeTransactions
 	data.ExpenseTransactions = expenseTransactions
 
-	app.render(w, http.StatusOK, "transactions.tmpl.html", data)
+	app.render(w, http.StatusOK, "transactions.html", data)
 }

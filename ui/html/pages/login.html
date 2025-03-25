@@ -1,0 +1,42 @@
+{{define "title"}}Login{{end}}
+
+{{define "main"}}
+<div class="row my-4">
+    <div class="col-lg-3">
+    </div>
+    <div class="col-lg-4 col-12">
+        <div class="custom-block mt-4 pt-4 bg-white">
+            <form class="custom-form" action= '/user/login' method= 'POST' novalidate>
+                <!-- Notice that here we are looping over the NonFieldErrors and displaying
+                them, if any exist -->
+                {{range .Form.NonFieldErrors}}
+                    <div class= 'error'>{{.}}</div>
+                {{end}}
+                <div>
+                    <label class="form-label">Email:</label>
+                    {{with .Form.FieldErrors.email}}
+                        <label class='form-label error'>{{.}}</label>
+                    {{end}}
+                    <input class="form-control" type= 'email' name= 'email' value= '{{.Form.Email}}'>
+                </div>
+                <div>
+                    <label class="form-label">Password:</label>
+                    {{with .Form.FieldErrors.password}}
+                        <label class="form-label error">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" type= 'password' name= 'password'>
+                </div>
+                <button class="form-control ms-2" type='submit'> Login </button>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}

@@ -34,10 +34,8 @@ func (app *application) routes() http.Handler {
 	// NOTE: For test purpose
 	mux.HandleFunc("GET /ping", app.ping)
 
-	mux.Handle("GET /test", dynamic(http.HandlerFunc(app.test)))
 	// NOTE: Regular Session
 	mux.Handle("GET /{$}", dynamic(http.HandlerFunc(app.home)))
-	mux.Handle("GET /about", dynamic(http.HandlerFunc(app.aboutView)))
 
 	// NOTE: User Paths
 	mux.Handle("GET /user/signup", dynamic(http.HandlerFunc(app.userSignup)))
@@ -47,13 +45,15 @@ func (app *application) routes() http.Handler {
 
 	// NOTE: Auth Session
 	mux.Handle("POST /user/logout", protected(dynamic(http.HandlerFunc(app.userLogoutPost))))
-	mux.Handle("GET /user/view/", protected(dynamic(http.HandlerFunc(app.userView))))
+	mux.Handle("GET /user/profile/", protected(dynamic(http.HandlerFunc(app.userView))))
+	// TODO:REMOVE
 	mux.Handle("GET /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdate))))
 	mux.Handle("POST /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdatePost))))
 
 	// NOTE: Accounts
 	mux.Handle("GET /accounts/", protected(dynamic(http.HandlerFunc(app.accountsView))))
 	mux.Handle("GET /account/view/{id}", protected(dynamic(http.HandlerFunc(app.accountView))))
+	// TODO: Create Account and rebalance
 	mux.Handle("GET /account/create", protected(dynamic(http.HandlerFunc(app.accountCreate))))
 	mux.Handle("POST /account/create", protected(dynamic(http.HandlerFunc(app.accountCreatePost))))
 	mux.Handle("GET /account/rebalance/{id}", protected(dynamic(http.HandlerFunc(app.accountRebalanceView))))

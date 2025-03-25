@@ -1,26 +1,28 @@
 {{define "transfer-confirm"}}
-<form hx-post="/transfer/create/" hx-swap="none">
-    <h2>
+<form class="custom-form profile-form" hx-post="/transfer/create/" hx-swap="none">
+    <h4>
         Confirm Transfer Transaction
-    </h2>
-    <div>
-        <p> You are about to transfer  {{.Form.FromAmount}} {{.Form.FromAcc.Currency.String}} </p>
+    </h4>
+    <div >
+        <p> 
+            You are about to transfer {{.Form.FromAmount}} {{.Form.FromAcc.Currency.String}}
+        </p> 
         <p>From {{.Form.FromAcc.AccountName}} </p>
-        <input type='hidden' value='{{.Form.FromAcc.ID}}' name='from' id='from' > 
-        <input id='amount' type='hidden' value='{{.Form.FromAmount}}' name= 'amount'>
+        <input class="form-control" type='hidden' value='{{.Form.FromAcc.ID}}' name='from' id='from' > 
+        <input class="form-control" id='amount' type='hidden' value='{{.Form.FromAmount}}' name= 'amount'>
     </div>
     <div>
         <p> To {{.Form.ToAcc.AccountName}} </p>
         <p> Which will receive {{.Form.ToAmount}} {{.Form.ToAcc.Currency.String}}. </p>
-        <input type='hidden' value='{{.Form.ToAcc.ID}}' name='to' id='to' readonly hidden> 
+        <input class="form-control" type='hidden' value='{{.Form.ToAcc.ID}}' name='to' id='to' readonly hidden> 
     </div>
     <div>
         <label>On Date:</label>
-        <input type='date' name='date' value='{{htmlDate .Form.Date}}' readonly>
+        <input class="form-control" type='date' name='date' value='{{htmlDate .Form.Date}}' readonly>
     </div>
     <div>
-        <input type='hidden' id='confirm' name='confirm' value='true'>
-        <input type= 'submit' value= 'Confirm Transfer'>
+        <input class="form-control" type='hidden' id='confirm' name='confirm' value='true'>
     </div>
+    <button type= 'submit' class="form-control ms-2"> Confirm Transfer </button>
 </form>
 {{end}}

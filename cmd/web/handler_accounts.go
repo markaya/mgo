@@ -85,14 +85,20 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) accountsView(w http.ResponseWriter, r *http.Request) {
-	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
-	if id == 0 {
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+	if userId == 0 {
 		err := errors.New("Unauthorized user requesting account view.")
 		app.serverError(w, err)
 		return
 	}
+	user, err := app.users.Get(userId)
+	if err != nil {
+		app.errorLog.Printf("could not find user with id %d", userId)
+		app.serverError(w, err)
+		return
+	}
 
-	accounts, err := app.accounts.GetAll(id)
+	accounts, err := app.accounts.GetAll(userId)
 	if err != nil {
 		app.errorLog.Println("error while getting all accounts for user")
 		app.serverError(w, err)
@@ -101,7 +107,8 @@ func (app *application) accountsView(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Accounts = accounts
-	app.render(w, http.StatusOK, "accounts.tmpl.html", data)
+	data.User = user
+	app.render(w, http.StatusOK, "accounts.html", data)
 }
 
 func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
@@ -127,9 +134,18 @@ func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, ok := r.Context().Value(authenticatedUser).(*models.User)
+	if !ok {
+		err := errors.New("unauthorized user requesting account view, could not find user in context")
+		app.serverError(w, err)
+		return
+
+	}
+
 	data := app.newTemplateData(r)
+	data.User = user
 	data.Account = account
-	app.render(w, http.StatusOK, "account.tmpl.html", data)
+	app.render(w, http.StatusOK, "account.html", data)
 }
 
 func (app *application) accountRebalanceView(w http.ResponseWriter, r *http.Request) {
@@ -153,7 +169,7 @@ func (app *application) accountRebalanceView(w http.ResponseWriter, r *http.Requ
 	form := rebalanceAccountForm{}
 	data.Form = form
 
-	app.render(w, http.StatusOK, "rebalance.tmpl.html", data)
+	app.render(w, http.StatusOK, "rebalance.html", data)
 }
 func (app *application) accountRebalancePost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()

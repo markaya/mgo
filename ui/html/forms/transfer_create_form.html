@@ -1,0 +1,49 @@
+{{define "transfer-create-form"}}
+<div id="transfer-content">
+    <form class="custom-form" hx-post="/transfer/create/" hx-swap="innerHTML" hx-target="#transfer-content">
+        <h4>
+            New Transfer Transaction
+        </h4>
+        <div>
+            {{with .Form.FieldErrors.from}}
+                <label class='error'> {{.}}</label>
+            {{end}}
+            <label class="form-label" for="category">From:</label>
+            <select class="form-control" name="from" id="from">
+                {{ range .Accounts }}
+                <option value="{{ .ID }}">{{ .AccountName }} - {{.Currency}}</option>
+                {{ end }}
+            </select>
+        </div>
+        <div>
+            {{with .Form.FieldErrors.to}}
+                <label class="form-label" class='error'> {{.}}</label>
+            {{end}}
+            <label class="form-label" for="category">To:</label>
+            <select class="form-control" name="to" id="to">
+                {{ range .Accounts }}
+                <option value="{{ .ID }}">{{ .AccountName }} - {{.Currency}}</option>
+                {{ end }}
+            </select>
+        </div>
+        <div>
+            <label class="form-label">Date:</label>
+            {{with .Form.FieldErrors.date}}
+                <label class='error'> {{.}}</label>
+            {{end}}
+            <input class="form-control" type= 'date' name= 'date' value='{{if .Form.Date.IsZero}}{{.DateStringNow}}{{ else }}{{htmlDate .Form.Date}}{{end}}'>
+        </div>
+        <div>
+            <label class="form-label">Amount:</label>
+            {{with .Form.FieldErrors.amount}}
+                <label class='error'> {{.}}</label>
+            {{end}}
+            <input class="form-control"  id='amount' type='number' value='1000' name= 'amount' value='{{.Form.FromAmount}}'>
+        </div>
+        <div>
+            <input class="form-control" type='hidden' id='confirm' name='confirm' value='false'>
+        </div>
+        <button type= 'submit' class="form-control ms-2"> Create Transfer </button>
+    </form>
+</div>
+{{end}}

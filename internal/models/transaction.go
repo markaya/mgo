@@ -53,7 +53,7 @@ func NewRebalance(account Account, balanceDiff float64) TransactionCreateForm {
 }
 
 func (a Transaction) DisplayAmount() string {
-	return fmt.Sprintf("%.3f %s", a.Amount, a.Currency)
+	return fmt.Sprintf("%.2f %s", a.Amount, a.Currency)
 }
 
 func (a Transaction) DisplayDate() string {

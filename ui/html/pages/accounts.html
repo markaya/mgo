@@ -1,0 +1,40 @@
+{{define "title"}}Accounts {{end}}
+
+{{define "main"}}
+    <div class="title-group mb-3">
+        <h1 class="h2 mb-0">Accounts</h1>
+        <small class="text-muted">Hello {{.User.Name}}, welcome back!</small>
+    </div>
+    <div class="row my-4">
+        <div class="custom-block mt-4 pt-4 bg-white">
+            <div class="d-flex flex-column justify-content-center align-items-center col-lg-4 offset-lg-4 col-sm-8 text-center">
+                <p> You have a new account? Feel free to create one here:</p>
+                <a href="/account/create" class="btn custom-btn"> New Account </a>
+            </div>
+        </div>
+
+        <div class="custom-block mt-4 pt-4 bg-white">
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                {{range .Accounts}}
+                <div class="card d-flex flex-column justify-content-between flex-shrink-0 col-lg-4 col-sm-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{.AccountName}}</h5>
+                        <p class="card-text">Balance: {{.DisplayBalance}}</p>
+                    </div>
+                    <div class="card-footer border-0 text-center">
+                        <a href="/account/view/{{.ID}}" class="btn custom-btn">Details</a>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}
