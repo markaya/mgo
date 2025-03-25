@@ -11,6 +11,7 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 		if !app.isAuthenticated(r) {
 			app.sessionManager.Put(r.Context(), "redirectPathAfterLogIn", r.URL.Path)
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			//TODO: ADD CACHING
 			w.Header().Add("Cache-Control", "no-store")
 			return
 		}

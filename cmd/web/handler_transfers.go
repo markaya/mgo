@@ -160,6 +160,6 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusOK)
 
 	} else {
-		app.renderForm(w, http.StatusOK, "transfer_confirm.tmpl.html", "transfer-confirm", data)
+		app.renderForm(w, http.StatusOK, "transfer_confirm.html", "transfer-confirm", data)
 	}
 }

@@ -26,7 +26,7 @@ func (app *application) accountCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
 	data.Form = accountCreateForm{Currency: 0}
-	app.render(w, http.StatusOK, "accountCreate.tmpl.html", data)
+	app.render(w, http.StatusOK, "account_create.html", data)
 }
 
 func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +43,7 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+
 	currency, err := strconv.Atoi(r.PostForm.Get("currency"))
 	if err != nil {
 		app.errorLog.Printf("could not parse form currency")
@@ -62,7 +63,7 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "accountCreate.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "account_create.html", data)
 		return
 	}
 
@@ -72,7 +73,7 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 			form.AddFieldError("name", "Account name already in use.")
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "accountCreate.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "account_create.html", data)
 		} else {
 			app.serverError(w, err)
 			return
@@ -215,7 +216,7 @@ func (app *application) accountRebalancePost(w http.ResponseWriter, r *http.Requ
 
 	data.Form = form
 	if !form.Valid() {
-		app.render(w, http.StatusUnprocessableEntity, "rebalance.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "rebalance.html", data)
 		return
 	}
 

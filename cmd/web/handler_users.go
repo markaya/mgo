@@ -58,7 +58,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "signup.html", data)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "signup.html", data)
 		} else {
 			app.serverError(w, err)
 		}
@@ -105,7 +105,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "login.html", data)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 			form.AddNonFieldError("Email or password is incorrect")
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "login.html", data)
 		} else {
 			app.serverError(w, err)
 		}
@@ -182,13 +182,6 @@ func (app *application) userView(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *application) accountPasswordUpdate(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData(r)
-	data.Form = changePasswordForm{}
-
-	app.render(w, http.StatusOK, "password.tmpl.html", data)
-}
-
 func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -239,6 +232,7 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
+		//TODO: FIX THIS FOR WHEN THERE IS ERRORS, this page does not exist anymore
 		app.render(w, http.StatusUnprocessableEntity, "password.tmpl.html", data)
 		return
 	}

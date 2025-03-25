@@ -152,7 +152,7 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 
 		data.Accounts = accounts
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "transactionCreate.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "transaction_create.html", data)
 		return
 	}
 
@@ -164,6 +164,7 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 			form.AddFieldError("account", "Account does not exist.")
 			data := app.newTemplateData(r)
 			data.Form = form
+			// WARN: THIS NEVER HAPPENS, this is copied from adding account, fix this
 			app.render(w, http.StatusUnprocessableEntity, "accountCreate.tmpl.html", data)
 		} else {
 			app.infoLog.Println("server error when inserting!")

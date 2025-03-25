@@ -47,7 +47,6 @@ func (app *application) routes() http.Handler {
 	mux.Handle("POST /user/logout", protected(dynamic(http.HandlerFunc(app.userLogoutPost))))
 	mux.Handle("GET /user/profile/", protected(dynamic(http.HandlerFunc(app.userView))))
 	// TODO:REMOVE
-	mux.Handle("GET /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdate))))
 	mux.Handle("POST /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdatePost))))
 
 	// NOTE: Accounts
