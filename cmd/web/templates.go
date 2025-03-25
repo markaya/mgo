@@ -93,12 +93,12 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
 	// pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
-	pages, err := fs.Glob(ui.Files, "html/pages/*tmpl.html")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
 
-	forms, err := fs.Glob(ui.Files, "html/forms/*tmpl.html")
+	forms, err := fs.Glob(ui.Files, "html/forms/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -115,26 +115,10 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		// If you do not use embedded fieles:
-		// ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl.html")
-		// if err != nil {
-		// 	return nil, err
-		// }
-		//
-		// ts, err = ts.ParseGlob("./ui/html/partials/nav.tmpl.html")
-		// if err != nil {
-		// 	return nil, err
-		// }
-		//
-		// ts, err = ts.ParseFiles(page)
-		// if err != nil {
-		// 	return nil, err
-		// }
-
 		patterns := []string{
-			"html/base.tmpl.html",
-			"html/partials/*.tmpl.html",
-			"html/forms/*.tmpl.html",
+			"html/foundation.html",
+			"html/partials/*.html",
+			"html/forms/*.html",
 			page,
 		}
 
@@ -150,3 +134,65 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 	return cache, nil
 }
+
+// func newTemplateCache() (map[string]*template.Template, error) {
+// 	cache := map[string]*template.Template{}
+//
+// 	// pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+// 	pages, err := fs.Glob(ui.Files, "html/pages/*tmpl.html")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	forms, err := fs.Glob(ui.Files, "html/forms/*tmpl.html")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	for _, form := range forms {
+// 		name := filepath.Base(form)
+// 		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, form)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		cache[name] = ts
+// 	}
+//
+// 	for _, page := range pages {
+// 		name := filepath.Base(page)
+//
+// 		// If you do not use embedded fieles:
+// 		// ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl.html")
+// 		// if err != nil {
+// 		// 	return nil, err
+// 		// }
+// 		//
+// 		// ts, err = ts.ParseGlob("./ui/html/partials/nav.tmpl.html")
+// 		// if err != nil {
+// 		// 	return nil, err
+// 		// }
+// 		//
+// 		// ts, err = ts.ParseFiles(page)
+// 		// if err != nil {
+// 		// 	return nil, err
+// 		// }
+// 			patterns := []string{
+// 				"html/base.tmpl.html",
+// 				"html/partials/*.tmpl.html",
+// 				"html/forms/*.tmpl.html",
+// 				page,
+// 			}
+// 		}
+//
+// 		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+//
+// 		// Add to cache models that are not
+//
+// 		cache[name] = ts
+// 	}
+//
+// 	return cache, nil
+// }

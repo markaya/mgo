@@ -22,6 +22,10 @@ type Account struct {
 	Currency    Currency
 }
 
+func (a Account) GetCurrencyString() string {
+	return a.Currency.String()
+}
+
 func (a Account) DisplayBalance() string {
 	return fmt.Sprintf("%.2f %s", a.Balance, a.Currency)
 }

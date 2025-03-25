@@ -11,6 +11,7 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 		if !app.isAuthenticated(r) {
 			app.sessionManager.Put(r.Context(), "redirectPathAfterLogIn", r.URL.Path)
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			//TODO: ADD CACHING
 			w.Header().Add("Cache-Control", "no-store")
 			return
 		}
@@ -25,14 +26,20 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		exists, err := app.users.Exist(id)
+		user, err := app.users.Get(id)
 		if err != nil {
 			app.serverError(w, err)
 			return
 		}
 
-		if exists {
+		// FIXME: Multiple additions to context, to be checked. Uncomment and watch logs
+		//app.infoLog.Println(user)
+		if user != nil {
+			// app.infoLog.Println(r.Context())
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			// app.infoLog.Println(ctx)
+			ctx = context.WithValue(ctx, authenticatedUser, user)
+			// app.infoLog.Println()
 			r = r.WithContext(ctx)
 		}
 
@@ -43,7 +50,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy",
-			"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com;")
+			"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com;")
 
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")

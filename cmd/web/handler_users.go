@@ -33,7 +33,7 @@ type changePasswordForm struct {
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userSignupForm{}
-	app.render(w, http.StatusOK, "signup.tmpl.html", data)
+	app.render(w, http.StatusOK, "signup.html", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +58,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "signup.html", data)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "signup.html", data)
 		} else {
 			app.serverError(w, err)
 		}
@@ -83,7 +83,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
-	app.render(w, http.StatusOK, "login.tmpl.html", data)
+	app.render(w, http.StatusOK, "login.html", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "login.html", data)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 			form.AddNonFieldError("Email or password is incorrect")
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "login.html", data)
 		} else {
 			app.serverError(w, err)
 		}
@@ -177,15 +177,9 @@ func (app *application) userView(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.User = user
 	data.Accounts = accounts
-	app.render(w, http.StatusOK, "userAccount.tmpl.html", data)
-
-}
-
-func (app *application) accountPasswordUpdate(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData(r)
 	data.Form = changePasswordForm{}
+	app.render(w, http.StatusOK, "profile.html", data)
 
-	app.render(w, http.StatusOK, "password.tmpl.html", data)
 }
 
 func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http.Request) {
@@ -238,6 +232,7 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
+		//TODO: FIX THIS FOR WHEN THERE IS ERRORS, this page does not exist anymore
 		app.render(w, http.StatusUnprocessableEntity, "password.tmpl.html", data)
 		return
 	}
@@ -249,5 +244,5 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 	}
 
 	app.sessionManager.Put(r.Context(), "flash", "Successfully changed password!")
-	http.Redirect(w, r, "/user/view/", http.StatusSeeOther)
+	http.Redirect(w, r, "/user/profile/", http.StatusSeeOther)
 }

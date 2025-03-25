@@ -1,0 +1,125 @@
+{{define "title"}} Home {{end}}
+
+{{define "main"}}
+    <div class="title-group mb-3">
+        <h1 class="h2 mb-0">Overview</h1>
+        <small class="text-muted">Hello {{.User.Name}}, welcome back!</small>
+    </div>
+
+    <div class="row my-4">
+        <div class="col-lg-7 col-12">
+            {{with .UserTotalReport}}
+            <div class="custom-block bg-white">
+                <div class="">
+                    <h3>EUR Balance</h3>
+                    <div class="d-flex flex-column">
+                        <span>Income: {{formatFloat .IncomeEur}}€</span>
+                        <span>Expense: {{formatFloat .ExpenseEur}}€</span>
+                    </div>
+                    <progress id="progress-eur" value="{{.ProgressEur}}" max="100"> </progress>
+                    <div>
+                    <span>{{.ProgressEur}}% Spent </span>
+                    </div>
+                </div>
+
+                <div class="">
+                    <h3>RSD Balance</h3>
+                    <div class="d-flex flex-column">
+                        <span>Income: {{formatFloat .IncomeRsd}} RSD</span>
+                        <span>Expense: {{formatFloat .ExpenseRsd}} RSD</span>
+                        <progress id="progress-rsd" value="{{.ProgressRsd}}" max="100"> </progress>
+                        <span>{{.ProgressRsd}}% Spent </span>
+                    </div>
+                </div>
+           </div>
+           {{end}}
+
+           <div class="custom-block custom-block-exchange">
+                <h5 class="mb-4">Exchange Rate</h5>
+
+                <div class="d-flex align-items-center border-bottom pb-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <img src="/static/img/flag/european-union.png" class="exchange-image img-fluid" alt="">
+
+                        <div>
+                            <p>EUR</p>
+                            <h6>1 EUR</h6>
+                        </div>
+                    </div>
+
+                    <div class="ms-auto me-4">
+                        <small>Sell</small>
+                        <h6>117.00</h6>
+                    </div>
+
+                    <div>
+                        <small>Buy</small>
+                        <h6>117.00</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-12">
+
+            <div class="custom-block custom-block-bottom d-flex flex-wrap">
+                <div class="custom-block-bottom-item">
+                    <a href="/transaction/create/income" class="d-flex flex-column">
+                        <i class="custom-block-icon bi-arrow-down"></i>
+                        <small>New Income</small>
+                    </a>
+                </div>
+
+                <div class="custom-block-bottom-item">
+                    <a href="/transaction/create/expense" class="d-flex flex-column">
+                        <i class="custom-block-icon bi-arrow-up"></i>
+                        <small>New Expense</small>
+                    </a>
+                </div>
+
+                <div class="custom-block-bottom-item">
+                    <a href="/transfer/create" class="d-flex flex-column">
+                        <i class="custom-block-icon bi-arrow-down-up"></i>
+                        <small>Transfer</small>
+                    </a>
+                </div>
+
+                <div class="custom-block-bottom-item">
+                    <a href="/transactions" class="d-flex flex-column">
+                        <i class="custom-block-icon bi-list-columns"></i>
+                        <small>Transactions</small>
+                    </a>
+                </div>
+            </div>
+            <div class="custom-block custom-block-profile-front custom-block-profile text-center bg-white">
+                <div class="custom-block-profile-image-wrap mb-4">
+                    <img src="/static/img/medium-shot-happy-man-smiling.jpg" class="custom-block-profile-image img-fluid" alt="">
+
+                    <a href="/user/profile/" class="bi-pencil-square custom-block-edit-icon"></a>
+                </div>
+
+                <p class="d-flex flex-wrap mb-2">
+                    <strong>Name:</strong>
+                    <span>{{.User.Name}}</span>
+                </p>
+
+                <p class="d-flex flex-wrap mb-2">
+                    <strong>Email:</strong>
+                    <a href="#">
+                        {{.User.Email}}
+                    </a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+    {{template "footer" .}}
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}

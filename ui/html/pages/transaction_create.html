@@ -1,0 +1,72 @@
+{{define "title"}}Create Transaction{{end}}
+
+{{define "main"}}
+    <div class="row my-4">
+        <div class="col-lg-3">
+        </div>
+        <div class="col-lg-4 col-12">
+            <div class="custom-block mt-4 pt-4 bg-white">
+                <form class="custom-form" action= '/transaction/create/' method= 'POST'>
+                    <div class = "d-flex flex-column">
+                        <h4>
+                            {{if (eq .Form.TransactionType 0)}}New Income Transaction{{end}}
+                            {{if (eq .Form.TransactionType 1)}}New Expense Transaction{{end}}
+                        </h4>
+                        <div>
+                            <label class="form-label" for="category">Account:</label>
+                            <select name="account" class="form-control" id="account">
+                                {{ range .Accounts }}
+                                <option value="{{ .ID }}">{{ .AccountName }} - {{.Currency}}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Date:</label>
+                            {{with .Form.FieldErrors.date}}
+                                <label class='error'> {{.}}</label>
+                            {{end}}
+                            <input class="form-control" type= 'date' name= 'date' value='{{if .Form.Date.IsZero}}{{.DateStringNow}}{{ else }}{{htmlDate .Form.Date}}{{end}}'>
+                        </div>
+                        <div>
+                            <label class="form-label">Amount:</label>
+                            {{with .Form.FieldErrors.amount}}
+                                <label class='error'> {{.}}</label>
+                            {{end}}
+                            <input id='amount' class="form-control" type='number' value='1000' name= 'amount' value='{{.Form.Amount}}'>
+                        </div>
+                        <div>
+                            <label for="category" class="form-label">Choose a category:</label>
+                            {{with .Form.FieldErrors.category}}
+                                <label class='error'> {{.}}</label>
+                            {{end}}
+                            <select name="category" class="form-control" id="category">
+                                {{ range .Categories }}
+                                    <option value="{{ . }}">{{ . }}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Description:</label>
+                            {{with .Form.FieldErrors.description}}
+                                <label class='error'> {{.}}</label>
+                            {{end}}
+                            <input class="form-control" type= 'text' name= 'description' value='{{.Form.Description}}'>
+                        </div>
+                        <div>
+                            <input class="form-control" type='hidden' name= 'txtype' value='{{.Form.TransactionType}}'>
+                        </div>
+                    </div>
+                    <button type= 'submit' class="form-control ms-2"> Create Transaction </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}

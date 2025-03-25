@@ -36,7 +36,6 @@ func (app *application) routes() http.Handler {
 
 	// NOTE: Regular Session
 	mux.Handle("GET /{$}", dynamic(http.HandlerFunc(app.home)))
-	mux.Handle("GET /about", dynamic(http.HandlerFunc(app.aboutView)))
 
 	// NOTE: User Paths
 	mux.Handle("GET /user/signup", dynamic(http.HandlerFunc(app.userSignup)))
@@ -46,8 +45,8 @@ func (app *application) routes() http.Handler {
 
 	// NOTE: Auth Session
 	mux.Handle("POST /user/logout", protected(dynamic(http.HandlerFunc(app.userLogoutPost))))
-	mux.Handle("GET /user/view/", protected(dynamic(http.HandlerFunc(app.userView))))
-	mux.Handle("GET /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdate))))
+	mux.Handle("GET /user/profile/", protected(dynamic(http.HandlerFunc(app.userView))))
+	// TODO:REMOVE
 	mux.Handle("POST /user/password/update", protected(dynamic(http.HandlerFunc(app.accountPasswordUpdatePost))))
 
 	// NOTE: Accounts

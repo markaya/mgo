@@ -1,0 +1,87 @@
+{{define "title"}} Profile {{end}}
+
+{{define "main"}}
+    <div class="title-group mb-3">
+        <h1 class="h2 mb-0">Profile</h1>
+    </div>
+
+    <div class="row my-4">
+        <div class="col-lg-7 col-12">
+            <div class="custom-block bg-white">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">Profile</button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane" type="button" role="tab" aria-controls="password-tab-pane" aria-selected="false">Password</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                        <h6 class="mb-4">User Profile</h6>
+
+                        <form class="custom-form profile-form" action="#" method="post" role="form">
+                            <input class="form-control" type="text" name="profile-name" id="profile-name" placeholder="{{.User.Name}}" readonly>
+
+                            <input class="form-control" type="email" name="profile-email" id="profile-email" placeholder="{{.User.Email}}" readonly>
+
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab" tabindex="0">
+                        <h6 class="mb-4">Password</h6>
+
+                        <form class="custom-form password-form" action='/user/password/update' method='POST' role="form" >
+                            {{with .Form.FieldErrors.currentPassword}}
+                            <label class='error'>{{.}}</label>
+                            {{end}}
+                            <input type="password" name="currentPassword" id="password" pattern="[0-9a-zA-Z]{4,10}" class="form-control" placeholder="Current Password" required="">
+
+                            {{with .Form.FieldErrors.newPassword}}
+                            <label class= 'error'>{{.}}</label>
+                            {{end}}
+                            <input type="password" name="newPassword"  pattern="[0-9a-zA-Z]{4,10}" class="form-control" placeholder="New Password" required="">
+
+                            {{with .Form.FieldErrors.newPasswordConfirmation}}
+                            <label class= 'error'>{{.}}</label>
+                            {{end}}
+                            <input type="password" name="newPasswordConfirmation" pattern="[0-9a-zA-Z]{4,10}" class="form-control" placeholder="Confirm Password" required="">
+
+                            <div class="d-flex">
+                                <button type="submit" class="form-control ms-2">
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-12">
+            <div class="custom-block custom-block-contact">
+                <h6 class="mb-4">Still can’t find what you looking for?</h6>
+
+                <p>
+                    <strong>Call us:</strong>
+                    <a href="tel: 305-240-9671" class="ms-2">
+                        (60) 
+                        305-240-9671
+                    </a>
+                </p>
+
+                <a href="#" class="btn custom-btn custom-btn-bg-white mt-3">
+                    Chat with us
+                </a>
+            </div>
+        </div>
+    </div>
+{{end}}
+
+{{define "javascript"}} 
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+{{end}}

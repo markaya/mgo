@@ -38,7 +38,7 @@ func (app *application) transferCreate(w http.ResponseWriter, r *http.Request) {
 	data.Accounts = accounts
 	data.DateStringNow = time.Now().Format("2006-01-02")
 	data.Form = models.TransferCreateForm{}
-	app.render(w, http.StatusOK, "transfer_create.tmpl.html", data)
+	app.render(w, http.StatusOK, "transfer_create.html", data)
 }
 
 func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +138,7 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		}
 
 		data.Accounts = accounts
-		app.renderForm(w, http.StatusOK, "transfer_create_form.tmpl.html", "transfer-create-form", data)
+		app.renderForm(w, http.StatusOK, "transfer_create_form.html", "transfer-create-form", data)
 		return
 	}
 
@@ -160,6 +160,6 @@ func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusOK)
 
 	} else {
-		app.renderForm(w, http.StatusOK, "transfer_confirm.tmpl.html", "transfer-confirm", data)
+		app.renderForm(w, http.StatusOK, "transfer_confirm.html", "transfer-confirm", data)
 	}
 }

@@ -1,0 +1,41 @@
+{{define "title"}}New Account{{end}}
+
+{{define "main"}}
+<div class="row my-4">
+    <div class="col-lg-4 offset-lg-4 col-12">
+        <div class="custom-block mt-4 pt-4 bg-white">
+            <form class="custom-form" action= '/account/create' method= 'POST'>
+                <div>
+                    <label class="form-label">Account name:</label>
+                    {{with .Form.FieldErrors.name}}
+                        <label class="error form-label"> {{.}}</label>
+                    {{end}}
+                    <input class="form-control" type= 'text' name= 'name' value='{{.Form.AccountName}}'>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Currency:</label>
+                    {{with .Form.FieldErrors.currency}}
+                        <label class="error form-label"> {{.}}</label>
+                    {{end}}
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="currency" value='0' id="currency-0"{{if (eq .Form.Currency 0)}}checked{{end}}>
+                      <label class="form-check-label" for="currency-0">RSD</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="currency" value='1' id="currency-1" {{if (eq .Form.Currency 1)}}checked{{end}}>
+                      <label class="form-check-label" for="currency-1">EUR</label>
+                    </div>
+                </div>
+                <button class="form-control ms-2" type='submit'> Create Account </button>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "javascript"}}
+<!-- JAVASCRIPT FILES -->
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/main.js"></script>
+{{end}}
