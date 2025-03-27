@@ -19,6 +19,7 @@ type TransactionsModelInterface interface {
 	GetByType(userId int, tt TransactionType) ([]*Transaction, error)
 	GetByDateAndType(userId int, tt TransactionType, startDate, endDate time.Time) ([]*Transaction, error)
 	GetLatest(userId, limit int, tt TransactionType) ([]*Transaction, error)
+	GetTransfers(userId int, startDate, endDate time.Time) ([]*Transaction, error)
 }
 
 type Transaction struct {
@@ -47,7 +48,7 @@ func NewRebalance(account Account, balanceDiff float64) TransactionCreateForm {
 		Amount:          math.Abs(balanceDiff),
 		Currency:        int(account.Currency),
 		Category:        "rebalance",
-		Description:     "rebalance of account",
+		Description:     fmt.Sprintf("rebalance of account \"%s\"", account.AccountName),
 		TransactionType: int(transactionType),
 	}
 }
@@ -74,12 +75,7 @@ func (m *TransactionModel) InsertTransfer(tf TransferCreateForm) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err != nil {
-			// HACK: What if there is an error requiring rollback but rollback fails?
-			_ = tx.Rollback()
-		}
-	}()
+	defer tx.Rollback()
 
 	desc := fmt.Sprintf("[T] from %s to %s", tf.FromAcc.AccountName, tf.ToAcc.AccountName)
 	_, err = tx.Exec(stmt1, tf.FromAcc.ID, tf.FromAcc.UserId, tf.Date, tf.FromAmount, tf.FromAcc.Currency, "transfer", desc, TransferIn)
@@ -137,10 +133,12 @@ func (m *TransactionModel) Insert(tf TransactionCreateForm, newBalance float64) 
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 	defer func() {
-		if err != nil {
-			// HACK: What if there is an error requiring rollback but rollback fails?
-			_ = tx.Rollback()
+		// NOTE: Something like this is possible if you want to check rollback err.
+		rbErr := tx.Rollback()
+		if rbErr != nil && err == nil {
+			err = rbErr
 		}
 	}()
 
@@ -240,6 +238,7 @@ func (m *TransactionModel) GetByDateAndType(userId int, tt TransactionType, star
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	transactions := []*Transaction{}
@@ -332,6 +331,39 @@ func (m *TransactionModel) GetLatest(userId, limit int, tt TransactionType) ([]*
 	LIMIT ?;`
 
 	rows, err := m.DB.Query(stmt, userId, tt, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	transactions := []*Transaction{}
+
+	for rows.Next() {
+		t := &Transaction{}
+		err := rows.Scan(&t.ID, &t.AccountID, &t.UserID, &t.Date, &t.Amount, &t.Currency, &t.Category, &t.Description, &t.TransactionType)
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, t)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
+func (m *TransactionModel) GetTransfers(userId int, startDate, endDate time.Time) ([]*Transaction, error) {
+	stmt := `
+	SELECT id, account_id, user_id, date, amount, currency, category, description, transaction_type
+	FROM transactions
+	WHERE user_id = ?
+	AND date between ? and ?
+	AND transaction_type in (?, ?)
+	ORDER BY date DESC, id DESC;`
+
+	rows, err := m.DB.Query(stmt, userId, startDate, endDate, TransferIn, TransferOut)
 	if err != nil {
 		return nil, err
 	}

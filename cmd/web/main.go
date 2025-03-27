@@ -19,6 +19,10 @@ import (
 )
 
 /* TODO:
+0. Show groupings
+	a. spend by category
+	b. spent by account
+	c. total spent
 1. Fix race conditions
 2. Add Apartments/Bills
 3. Add Books
@@ -74,6 +78,7 @@ func main() {
 	// NOTE: Template cahce
 	templateCache, err := newTemplateCache()
 	if err != nil {
+		errorLog.Printf("there was an error trying to open db with dsn:\"%s\", please prived dsn flag or $MGO_DATABASE_URL env variable", cfg.dsn)
 		errorLog.Fatal(err)
 	}
 

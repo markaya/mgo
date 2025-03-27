@@ -156,13 +156,13 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userView(w http.ResponseWriter, r *http.Request) {
 	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if id == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
 	user, err := app.users.Get(id)
 	if err != nil {
-		err := fmt.Errorf("Authenticated user with %d does not exist in DB", id)
+		err := fmt.Errorf("authenticated user with %d does not exist in DB", id)
 		app.serverError(w, err)
 		return
 	}
@@ -203,13 +203,13 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 
 	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if id == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
 	user, err := app.users.Get(id)
 	if err != nil {
-		err := fmt.Errorf("Authenticated user with %d does not exist in DB", id)
+		err := fmt.Errorf("authenticated user with %d does not exist in DB", id)
 		app.serverError(w, err)
 		return
 	}
@@ -233,7 +233,7 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 		data := app.newTemplateData(r)
 		data.Form = form
 		//TODO: FIX THIS FOR WHEN THERE IS ERRORS, this page does not exist anymore
-		app.render(w, http.StatusUnprocessableEntity, "password.tmpl.html", data)
+		app.render(w, http.StatusUnprocessableEntity, "profile.html", data)
 		return
 	}
 

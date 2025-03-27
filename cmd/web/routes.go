@@ -64,7 +64,6 @@ func (app *application) routes() http.Handler {
 
 	// NOTE: Transfers
 	mux.Handle("GET /transfers/", protected(dynamic(http.HandlerFunc(app.transfersView))))
-	mux.Handle("GET /trnasfers/view/{id}", protected(dynamic(http.HandlerFunc(app.transferView))))
 	mux.Handle("GET /transfer/create/", protected(dynamic(http.HandlerFunc(app.transferCreate))))
 	mux.Handle("POST /transfer/create/", protected(dynamic(http.HandlerFunc(app.transferCreatePost))))
 

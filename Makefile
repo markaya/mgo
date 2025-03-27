@@ -6,3 +6,6 @@ run: build
 
 test:
 	@go test ./... -v
+
+deploy: build
+	cp bin/mgo /Users/markoristic/bin/

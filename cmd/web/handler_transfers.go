@@ -10,20 +10,64 @@ import (
 	"github.com/markaya/meinappf/internal/validator"
 )
 
-// TODO: Maybe later to show all transfers as they are not shown with others
-func (app *application) transferView(w http.ResponseWriter, r *http.Request) {
-	app.notFound(w)
-}
-
 func (app *application) transfersView(w http.ResponseWriter, r *http.Request) {
-	app.notFound(w)
+	data := app.newTemplateData(r)
+	data.WithDefaultDateFilter()
+
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+	if userId == 0 {
+		app.infoLog.Printf("could not find user with id %d", userId)
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	user, err := app.users.Get(userId)
+	if err != nil {
+		app.errorLog.Printf("could not find user with id %d", userId)
+		app.serverError(w, err)
+		return
+	}
+	data.User = user
+
+	err = r.ParseForm()
+	if err != nil {
+		app.errorLog.Println("err while parsing form")
+		app.serverError(w, err)
+		return
+	}
+
+	startDateString := r.Form.Get("start-date")
+	endDateString := r.Form.Get("end-date")
+
+	if startDateString != "" {
+		startDate, err := time.Parse("2006-01-02", startDateString)
+		if err == nil {
+			data.DateFilter["startDate"] = startDate
+		}
+	}
+	if endDateString != "" {
+		endDate, err := time.Parse("2006-01-02", endDateString)
+		if err == nil {
+			data.DateFilter["endDate"] = endDate
+		}
+	}
+
+	transactions, err := app.transactions.GetTransfers(
+		userId,
+		data.DateFilter["startDate"],
+		data.DateFilter["endDate"],
+	)
+
+	data.IncomeTransactions = transactions
+
+	app.render(w, http.StatusOK, "transfers.html", data)
 }
 
 func (app *application) transferCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if id == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
@@ -44,7 +88,7 @@ func (app *application) transferCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) transferCreatePost(w http.ResponseWriter, r *http.Request) {
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}

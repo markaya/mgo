@@ -30,7 +30,8 @@ func GetTotalReport(transactions []*models.Transaction, startDate, endDate time.
 
 	for _, v := range transactions {
 		// NOTE: Ignore transfer
-		if v.TransactionType == models.Income {
+		switch v.TransactionType {
+		case models.Income:
 			switch v.Currency {
 			case models.Euro:
 				incomeEur += v.Amount
@@ -40,7 +41,7 @@ func GetTotalReport(transactions []*models.Transaction, startDate, endDate time.
 				panic("unsupported currency")
 			}
 			incomeTransactions = append(incomeTransactions, *v)
-		} else if v.TransactionType == models.Expense {
+		case models.Expense:
 			switch v.Currency {
 			case models.Euro:
 				expenseEur += v.Amount

@@ -32,7 +32,7 @@ func (app *application) accountCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request) {
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
@@ -88,7 +88,7 @@ func (app *application) accountCreatePost(w http.ResponseWriter, r *http.Request
 func (app *application) accountsView(w http.ResponseWriter, r *http.Request) {
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
@@ -115,7 +115,7 @@ func (app *application) accountsView(w http.ResponseWriter, r *http.Request) {
 func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}

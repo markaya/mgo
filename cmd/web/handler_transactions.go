@@ -25,14 +25,14 @@ func (app *application) transactionCreate(w http.ResponseWriter, r *http.Request
 		transactionType = models.Expense
 		data.DefaultExpenseCategories()
 	default:
-		err := fmt.Errorf("Path %s does not exist.", path)
+		err := fmt.Errorf("path %s does not exist", path)
 		app.serverError(w, err)
 		return
 	}
 
 	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if id == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
@@ -54,28 +54,28 @@ func (app *application) transactionCreate(w http.ResponseWriter, r *http.Request
 func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Request) {
 	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
 	if userId == 0 {
-		err := errors.New("Unauthorized user requesting account view.")
+		err := errors.New("unauthorized user requesting account view")
 		app.serverError(w, err)
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
-		app.infoLog.Println("error while parsing form!")
+		app.infoLog.Println("error while parsing form")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	accId, err := strconv.Atoi(r.PostForm.Get("account"))
 	if err != nil {
-		app.infoLog.Println("error while parsing account id!")
+		app.infoLog.Println("error while parsing account id")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	account, err := app.accounts.Get(userId, accId)
 	if err != nil {
-		app.infoLog.Println("error while getting account from database!")
+		app.infoLog.Println("error while getting account from database")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -84,21 +84,21 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 
 	txType, err := strconv.Atoi(r.PostForm.Get("txtype"))
 	if err != nil {
-		app.infoLog.Println("error while parsing transaction type!")
+		app.infoLog.Println("error while parsing transaction type")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	amount, err := strconv.ParseFloat(r.PostForm.Get("amount"), 64)
 	if err != nil {
-		app.infoLog.Println("error while parsing amount type!")
+		app.infoLog.Println("error while parsing amount type")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	date, err := time.Parse("2006-01-02", r.PostForm.Get("date"))
 	if err != nil {
-		app.infoLog.Println("error while parsing date!")
+		app.infoLog.Println("error while parsing date")
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -142,12 +142,15 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 		}
 		data := app.newTemplateData(r)
 
-		if transactionType == models.Expense {
+		switch transactionType {
+		case models.Expense:
 			data.DefaultExpenseCategories()
-		} else if transactionType == models.Income {
+		case models.Income:
 			data.DefaultIncomeCategories()
-		} else {
+		default:
+			app.errorLog.Println("unsuported transaction type for user creation of transaction")
 			panic("unsupported tx type")
+
 		}
 
 		data.Accounts = accounts
@@ -160,12 +163,11 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 	// It is fine for now as there is no concurrent writes.
 	_, err = app.transactions.Insert(form, newBalance)
 	if err != nil {
-		if errors.Is(err, models.ErrDuplicateAccountName) {
+		if errors.Is(err, models.ErrAccountDoesNotExist) {
 			form.AddFieldError("account", "Account does not exist.")
 			data := app.newTemplateData(r)
 			data.Form = form
-			// WARN: THIS NEVER HAPPENS, this is copied from adding account, fix this
-			app.render(w, http.StatusUnprocessableEntity, "accountCreate.tmpl.html", data)
+			app.render(w, http.StatusUnprocessableEntity, "account_create.html", data)
 		} else {
 			app.infoLog.Println("server error when inserting!")
 			app.serverError(w, err)
@@ -174,13 +176,16 @@ func (app *application) transactionCreatePost(w http.ResponseWriter, r *http.Req
 	}
 
 	var redirectUrl string
-	if transactionType == models.Expense {
+	switch transactionType {
+	case models.Expense:
 		redirectUrl = "/transaction/create/expense"
-	} else if transactionType == models.Income {
+	case models.Income:
 		redirectUrl = "/transaction/create/income"
-	} else {
+	default:
 		redirectUrl = "/"
+
 	}
+
 	app.sessionManager.Put(r.Context(), "flash", "Transaction successfully created!")
 	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
