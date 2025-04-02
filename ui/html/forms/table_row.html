@@ -1,0 +1,13 @@
+{{define "table-row"}}
+<tr>
+    <td scope="row">{{.DisplayDate}}</td>
+
+    <td scope="row">{{.DisplayAmount}}</td>
+
+    <td scope="row">{{.Category}}</td>
+
+    <td scope="row">{{.Description}}</td>
+
+    <td scope="row"><a href='/transactions/cancel/{{.ID}}' class='btn btn-outline-warning btn-sm'>Cancel</a></td>
+</tr>
+{{end}}

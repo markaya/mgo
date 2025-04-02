@@ -20,6 +20,14 @@ type TransactionsModelInterface interface {
 	GetByDateAndType(userId int, tt TransactionType, startDate, endDate time.Time) ([]*Transaction, error)
 	GetLatest(userId, limit int, tt TransactionType) ([]*Transaction, error)
 	GetTransfers(userId int, startDate, endDate time.Time) ([]*Transaction, error)
+	GetGroupingByDate(userId int, startDate, endDate time.Time) ([]*GroupingReport, error)
+}
+
+type GroupingReport struct {
+	Category string
+	Count    int
+	Amount   float64
+	Currency Currency
 }
 
 type Transaction struct {
@@ -385,4 +393,43 @@ func (m *TransactionModel) GetTransfers(userId int, startDate, endDate time.Time
 	}
 
 	return transactions, nil
+}
+
+func (m *TransactionModel) GetGroupingByDate(userId int, startDate, endDate time.Time) ([]*GroupingReport, error) {
+	stmt := `
+		SELECT 
+			category,
+			COUNT(id) AS transaction_count,
+			SUM(amount) AS total_amount,
+			currency
+		FROM transactions
+		WHERE user_id = ?
+			AND date BETWEEN ? AND ?
+			AND transaction_type = ?
+		GROUP BY category, currency
+		ORDER BY total_amount DESC;
+	`
+
+	rows, err := m.DB.Query(stmt, userId, startDate, endDate, Expense)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	reports := []*GroupingReport{}
+
+	for rows.Next() {
+		t := &GroupingReport{}
+		err := rows.Scan(&t.Category, &t.Count, &t.Amount, &t.Currency)
+		if err != nil {
+			return nil, err
+		}
+		reports = append(reports, t)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reports, nil
 }

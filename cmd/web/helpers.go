@@ -30,7 +30,32 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-// page is the name it is written in cahce
+func (app *application) renderTableRow(w http.ResponseWriter, status int, transaction models.Transaction) {
+	page := "table_row.html"
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := fmt.Errorf("the template %s does not exist", page)
+		app.serverError(w, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+
+	err := ts.ExecuteTemplate(buf, "table-row", transaction)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.WriteHeader(status)
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}
+
+// renderForm is a method to render just form for HTMX calls.
+// page is the name it is written in cache.
 // form is the name of a form in template unde {{define "..."}} {{end}}
 // TODO: Think of a better way of unifying file path/name with {{define <name>}}
 func (app *application) renderForm(w http.ResponseWriter, status int, page, form string, data *templateData) {

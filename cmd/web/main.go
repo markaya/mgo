@@ -20,13 +20,20 @@ import (
 
 /* TODO:
 0. Show groupings
-	a. spend by category
-	b. spent by account
+	a. Group by category + Currency
+	b. Group by accouut + Currency
 	c. total spent
+0a. Transfers and rebalances tables
 1. Fix race conditions
-2. Add Apartments/Bills
-3. Add Books
+2. Separate transaction from ledger
+3. Add Apartments/Bills
+4. Add Books
 	a. MD Viewer
+5. Gym Diary
+*/
+
+/* FIX:
+1. There is potential issue with showing last day of the month transactions
 */
 
 type config struct {

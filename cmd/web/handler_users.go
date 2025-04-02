@@ -232,7 +232,6 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		//TODO: FIX THIS FOR WHEN THERE IS ERRORS, this page does not exist anymore
 		app.render(w, http.StatusUnprocessableEntity, "profile.html", data)
 		return
 	}

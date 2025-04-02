@@ -249,6 +249,10 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 		data.DateFilter["startDate"],
 		data.DateFilter["endDate"],
 	)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	report := services.GetTotalReport(
 		append(incomeTransactions, expenseTransactions...),
@@ -256,14 +260,68 @@ func (app *application) transactionsView(w http.ResponseWriter, r *http.Request)
 		data.DateFilter["endDate"],
 	)
 
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
 	data.UserTotalReport = report
 	data.IncomeTransactions = incomeTransactions
 	data.ExpenseTransactions = expenseTransactions
 
 	app.render(w, http.StatusOK, "transactions.html", data)
+}
+
+func (app *application) groupingsView(w http.ResponseWriter, r *http.Request) {
+
+	data := app.newTemplateData(r)
+	data.WithDefaultDateFilter()
+
+	userId := app.sessionManager.GetInt(r.Context(), "authenticatedUserId")
+	if userId == 0 {
+		app.infoLog.Printf("could not find user with id %d", userId)
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	user, err := app.users.Get(userId)
+	if err != nil {
+		app.errorLog.Printf("could not find user with id %d", userId)
+		app.serverError(w, err)
+		return
+	}
+	data.User = user
+
+	err = r.ParseForm()
+	if err != nil {
+		app.errorLog.Println("err while parsing form")
+		app.serverError(w, err)
+		return
+	}
+
+	startDateString := r.Form.Get("start-date")
+	endDateString := r.Form.Get("end-date")
+
+	if startDateString != "" {
+		startDate, err := time.Parse("2006-01-02", startDateString)
+		if err == nil {
+			data.DateFilter["startDate"] = startDate
+		}
+	}
+	if endDateString != "" {
+		endDate, err := time.Parse("2006-01-02", endDateString)
+		if err == nil {
+			data.DateFilter["endDate"] = endDate
+		}
+	}
+
+	groupings, err := app.transactions.GetGroupingByDate(
+		userId,
+		data.DateFilter["startDate"],
+		data.DateFilter["endDate"],
+	)
+
+	if err != nil {
+		app.errorLog.Printf("could not fetch grouping for user %d\n", userId)
+		app.serverError(w, err)
+		return
+	}
+	data.GroupingReports = groupings
+
+	app.render(w, http.StatusOK, "groupings.html", data)
 }

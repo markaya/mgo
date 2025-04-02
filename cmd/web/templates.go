@@ -24,6 +24,7 @@ type templateData struct {
 	Accounts            []*models.Account
 	Categories          []string
 	UserTotalReport     services.TotalReport
+	GroupingReports     []*models.GroupingReport
 	DateFilter          map[string]time.Time
 	IncomeTransactions  []*models.Transaction
 	ExpenseTransactions []*models.Transaction
